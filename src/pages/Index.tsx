@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Menu, X, Star, Users, TrendingUp, Shield, ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-graduate.jpg";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,14 +19,14 @@ const Header = () => {
           <span className="text-xl font-bold text-text-primary">UniCreds</span>
         </div>
 
-        <nav className="hidden md:flex items-center space-x-8">
-          <a href="#" className="text-text-secondary hover:text-primary transition-colors">Education Loan</a>
-          <a href="#" className="text-text-secondary hover:text-primary transition-colors">Student Loan</a>
-          <a href="#" className="text-text-secondary hover:text-primary transition-colors">Study Abroad</a>
-          <Badge variant="secondary" className="bg-success/10 text-success border-success/20">New</Badge>
-          <a href="#" className="text-text-secondary hover:text-primary transition-colors">Accommodation</a>
-          <a href="#" className="text-text-secondary hover:text-primary transition-colors">Contact Us</a>
-        </nav>
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link to="/education-loan" className="text-text-secondary hover:text-primary transition-colors">Education Loan</Link>
+            <Link to="/student-loan" className="text-text-secondary hover:text-primary transition-colors">Student Loan</Link>
+            <Link to="/study-abroad" className="text-text-secondary hover:text-primary transition-colors">Study Abroad</Link>
+            <Badge variant="secondary" className="bg-success/10 text-success border-success/20">New</Badge>
+            <Link to="/accommodation" className="text-text-secondary hover:text-primary transition-colors">Accommodation</Link>
+            <Link to="/contact" className="text-text-secondary hover:text-primary transition-colors">Contact Us</Link>
+          </nav>
 
         <div className="hidden md:block">
           <Button variant="cta" size="lg">Apply For Loan</Button>
