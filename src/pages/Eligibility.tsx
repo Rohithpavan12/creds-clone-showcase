@@ -260,7 +260,7 @@ const Eligibility = () => {
                         <SelectItem value="excellent">Excellent (80%+ / 8+ CGPA)</SelectItem>
                         <SelectItem value="good">Good (70-80% / 7-8 CGPA)</SelectItem>
                         <SelectItem value="average">Average (60-70% / 6-7 CGPA)</SelectItem>
-                        <SelectItem value="below-average">Below Average (<60% / <6 CGPA)</SelectItem>
+                        <SelectItem value="below-average">Below Average (&lt;60% / &lt;6 CGPA)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
