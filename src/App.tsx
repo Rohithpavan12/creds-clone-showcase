@@ -21,8 +21,12 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import Admin from "./pages/Admin";
+import { tracker } from "./lib/tracker";
 
 const queryClient = new QueryClient();
+
+// Initialize real data tracking
+tracker;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
