@@ -29,6 +29,7 @@ const Eligibility = () => {
 
   const calculateEligibility = () => {
     // Simple eligibility logic for demo
+    // Test comment for GitHub push verification
     const age = parseInt(formData.age);
 
     // Parse income range - handle edge cases
