@@ -30,8 +30,28 @@ const Eligibility = () => {
   const calculateEligibility = () => {
     // Simple eligibility logic for demo
     const age = parseInt(formData.age);
-    const income = parseInt(formData.income.split('-')[0]);
-    const loanAmount = parseInt(formData.loanAmount.split('-')[0]);
+
+    // Parse income range - handle edge cases
+    let income = 0;
+    if (formData.income && formData.income.includes('-')) {
+      income = parseInt(formData.income.split('-')[0].replace(/[₹,]/g, ''));
+    } else if (formData.income) {
+      income = parseInt(formData.income.replace(/[₹,]/g, ''));
+    }
+
+    // Parse loan amount range - handle edge cases
+    let loanAmount = 0;
+    if (formData.loanAmount && formData.loanAmount.includes('-')) {
+      loanAmount = parseInt(formData.loanAmount.split('-')[0].replace(/[₹,]/g, ''));
+    } else if (formData.loanAmount) {
+      loanAmount = parseInt(formData.loanAmount.replace(/[₹,]/g, ''));
+    }
+
+    // Validate parsed values
+    if (isNaN(age) || isNaN(income) || isNaN(loanAmount)) {
+      alert('Please ensure all fields are filled correctly with valid values.');
+      return;
+    }
     
     let score = 0;
     let factors = [];
