@@ -22,7 +22,8 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/education-loan" className="text-text-secondary hover:text-primary transition-colors">Education Loan</Link>
             <Link to="/student-loan" className="text-text-secondary hover:text-primary transition-colors">Student Loan</Link>
-            <Link to="/study-abroad" className="text-text-secondary hover:text-primary transition-colors">Study Abroad</Link>
+            <Link to="/personal-loan" className="text-text-secondary hover:text-primary transition-colors">Personal Loan</Link>
+            <Link to="/business-loan" className="text-text-secondary hover:text-primary transition-colors">Business Loan</Link>
             <Badge variant="secondary" className="bg-success/10 text-success border-success/20">New</Badge>
             <Link to="/contact" className="text-text-secondary hover:text-primary transition-colors">Contact Us</Link>
           </nav>
@@ -46,7 +47,8 @@ const Header = () => {
           <nav className="container mx-auto px-4 py-4 space-y-4">
             <Link to="/education-loan" className="block text-text-secondary hover:text-primary transition-colors">Education Loan</Link>
             <Link to="/student-loan" className="block text-text-secondary hover:text-primary transition-colors">Student Loan</Link>
-            <Link to="/study-abroad" className="block text-text-secondary hover:text-primary transition-colors">Study Abroad</Link>
+            <Link to="/personal-loan" className="block text-text-secondary hover:text-primary transition-colors">Personal Loan</Link>
+            <Link to="/business-loan" className="block text-text-secondary hover:text-primary transition-colors">Business Loan</Link>
             <Link to="/contact" className="block text-text-secondary hover:text-primary transition-colors">Contact Us</Link>
             <Link to="/apply">
               <Button variant="cta" size="lg" className="w-full">Apply For Loan</Button>
