@@ -28,7 +28,9 @@ const Header = () => {
           </nav>
 
         <div className="hidden md:block">
-          <Button variant="cta" size="lg">Apply For Loan</Button>
+          <Link to="/apply">
+            <Button variant="cta" size="lg">Apply For Loan</Button>
+          </Link>
         </div>
 
         <button 
@@ -42,11 +44,13 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-border">
           <nav className="container mx-auto px-4 py-4 space-y-4">
-            <a href="#" className="block text-text-secondary hover:text-primary transition-colors">Education Loan</a>
-            <a href="#" className="block text-text-secondary hover:text-primary transition-colors">Student Loan</a>
-            <a href="#" className="block text-text-secondary hover:text-primary transition-colors">Study Abroad</a>
-            <a href="#" className="block text-text-secondary hover:text-primary transition-colors">Contact Us</a>
-            <Button variant="cta" size="lg" className="w-full">Apply For Loan</Button>
+            <Link to="/education-loan" className="block text-text-secondary hover:text-primary transition-colors">Education Loan</Link>
+            <Link to="/student-loan" className="block text-text-secondary hover:text-primary transition-colors">Student Loan</Link>
+            <Link to="/study-abroad" className="block text-text-secondary hover:text-primary transition-colors">Study Abroad</Link>
+            <Link to="/contact" className="block text-text-secondary hover:text-primary transition-colors">Contact Us</Link>
+            <Link to="/apply">
+              <Button variant="cta" size="lg" className="w-full">Apply For Loan</Button>
+            </Link>
           </nav>
         </div>
       )}
@@ -87,10 +91,12 @@ const Hero = () => {
               </div>
             </div>
 
-            <Button variant="hero" size="lg" className="text-lg px-8 py-4">
-              Check your Eligibility
-              <ArrowRight className="w-5 h-5" />
-            </Button>
+            <Link to="/eligibility">
+              <Button variant="hero" size="lg" className="text-lg px-8 py-4">
+                Check your Eligibility
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
           </div>
 
           <div className="relative">
@@ -176,20 +182,20 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold text-lg">Products</h4>
             <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-primary transition-colors">Education Loan</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Student Loan</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Personal Loan</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Business Loan</a></li>
+              <li><Link to="/education-loan" className="hover:text-primary transition-colors">Education Loan</Link></li>
+              <li><Link to="/student-loan" className="hover:text-primary transition-colors">Student Loan</Link></li>
+              <li><Link to="/personal-loan" className="hover:text-primary transition-colors">Personal Loan</Link></li>
+              <li><Link to="/business-loan" className="hover:text-primary transition-colors">Business Loan</Link></li>
             </ul>
           </div>
 
           <div className="space-y-4">
             <h4 className="font-semibold text-lg">Support</h4>
             <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-primary transition-colors">Help Center</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Contact Us</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">FAQ</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Live Chat</a></li>
+              <li><Link to="/help-center" className="hover:text-primary transition-colors">Help Center</Link></li>
+              <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
+              <li><Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
+              <li><Link to="/live-chat" className="hover:text-primary transition-colors">Live Chat</Link></li>
             </ul>
           </div>
         </div>
@@ -197,9 +203,9 @@ const Footer = () => {
         <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-300">&copy; 2024 UniCreds. All rights reserved.</p>
           <div className="flex items-center space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-gray-300 hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="text-gray-300 hover:text-primary transition-colors">Terms of Service</a>
-            <a href="#" className="text-gray-300 hover:text-primary transition-colors">Cookie Policy</a>
+            <Link to="/privacy-policy" className="text-gray-300 hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-gray-300 hover:text-primary transition-colors">Terms of Service</Link>
+            <Link to="/cookie-policy" className="text-gray-300 hover:text-primary transition-colors">Cookie Policy</Link>
           </div>
         </div>
       </div>

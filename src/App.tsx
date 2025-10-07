@@ -13,6 +13,13 @@ import Contact from "./pages/Contact";
 import Apply from "./pages/Apply";
 import Eligibility from "./pages/Eligibility";
 import FAQ from "./pages/FAQ";
+import PersonalLoan from "./pages/PersonalLoan";
+import BusinessLoan from "./pages/BusinessLoan";
+import HelpCenter from "./pages/HelpCenter";
+import LiveChat from "./pages/LiveChat";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +39,13 @@ const App = () => (
           <Route path="/apply" element={<Apply />} />
           <Route path="/eligibility" element={<Eligibility />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/personal-loan" element={<PersonalLoan />} />
+          <Route path="/business-loan" element={<BusinessLoan />} />
+          <Route path="/help-center" element={<HelpCenter />} />
+          <Route path="/live-chat" element={<LiveChat />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
