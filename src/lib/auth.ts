@@ -1,19 +1,6 @@
-// Authentication utilities for admin panel
+// Authentication utilities for admin panel (JWT via backend)
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-// Admin credentials (in production, this should be in a secure backend)
-const ADMIN_CREDENTIALS = {
-  email: 'admin@unicreds.com',
-  password: 'UniCreds@2024!', // Strong password for production
-};
-
-// Alternative admin accounts for testing
-const ADMIN_ACCOUNTS = [
-  { email: 'admin@unicreds.com', password: 'UniCreds@2024!', role: 'super_admin', name: 'Super Admin' },
-  { email: 'manager@unicreds.com', password: 'Manager@2024!', role: 'manager', name: 'Manager User' },
-  { email: 'support@unicreds.com', password: 'Support@2024!', role: 'support', name: 'Support User' },
-];
 
 export interface User {
   id: string;
@@ -21,7 +8,7 @@ export interface User {
   name: string;
   role: 'super_admin' | 'manager' | 'support';
   lastLogin: string;
-  sessionToken: string;
+  sessionToken: string; // JWT token
 }
 
 interface AuthState {
@@ -33,14 +20,9 @@ interface AuthState {
   updateLastActivity: () => void;
 }
 
-// Generate a secure session token
-const generateSessionToken = (): string => {
-  return `session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-};
-
-// Check if session is expired (30 minutes timeout)
+// Session timeout guard (last activity)
 const isSessionExpired = (lastActivity: string): boolean => {
-  const TIMEOUT_MINUTES = 30;
+  const TIMEOUT_MINUTES = Number(import.meta.env.VITE_SESSION_TIMEOUT || 30);
   const lastActivityTime = new Date(lastActivity).getTime();
   const currentTime = new Date().getTime();
   const diffMinutes = (currentTime - lastActivityTime) / (1000 * 60);
@@ -54,50 +36,34 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: async (email: string, password: string) => {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
+        try {
+          const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
 
-        // Find matching admin account
-        const account = ADMIN_ACCOUNTS.find(
-          acc => acc.email.toLowerCase() === email.toLowerCase() && acc.password === password
-        );
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            return { success: false, message: data.message || 'Login failed' };
+          }
 
-        if (account) {
+          const data = await res.json();
+          const now = new Date().toISOString();
           const user: User = {
-            id: `user_${Date.now()}`,
-            email: account.email,
-            name: account.name,
-            role: account.role,
-            lastLogin: new Date().toISOString(),
-            sessionToken: generateSessionToken(),
+            id: data.user?.id || 'user',
+            email: data.user?.email || email,
+            name: data.user?.name || 'Admin',
+            role: (data.user?.role || 'super_admin') as User['role'],
+            lastLogin: now,
+            sessionToken: data.token,
           };
 
           set({ user, isAuthenticated: true });
-
-          // Log login activity
-          const loginHistory = JSON.parse(localStorage.getItem('unicreds_login_history') || '[]');
-          loginHistory.push({
-            email: user.email,
-            timestamp: user.lastLogin,
-            success: true,
-            ip: '127.0.0.1', // In production, get real IP
-          });
-          localStorage.setItem('unicreds_login_history', JSON.stringify(loginHistory));
-
           return { success: true, message: 'Login successful' };
+        } catch (e) {
+          return { success: false, message: 'Network error' };
         }
-
-        // Log failed login attempt
-        const loginHistory = JSON.parse(localStorage.getItem('unicreds_login_history') || '[]');
-        loginHistory.push({
-          email,
-          timestamp: new Date().toISOString(),
-          success: false,
-          ip: '127.0.0.1',
-        });
-        localStorage.setItem('unicreds_login_history', JSON.stringify(loginHistory));
-
-        return { success: false, message: 'Invalid email or password' };
       },
 
       logout: () => {
@@ -117,16 +83,11 @@ export const useAuthStore = create<AuthState>()(
 
       checkSession: () => {
         const state = get();
-        if (!state.user || !state.isAuthenticated) {
-          return false;
-        }
-
-        // Check if session is expired
+        if (!state.user || !state.isAuthenticated) return false;
         if (isSessionExpired(state.user.lastLogin)) {
           state.logout();
           return false;
         }
-
         return true;
       },
 
@@ -146,10 +107,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'unicreds-auth',
-      partialize: (state) => ({ 
-        user: state.user, 
-        isAuthenticated: state.isAuthenticated 
-      }),
+      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
     }
   )
 );
