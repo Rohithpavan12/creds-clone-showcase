@@ -34,6 +34,18 @@ const Admin = () => {
   const [editingApp, setEditingApp] = useState<Application | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState<Partial<Application>>({});
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    registeredDate: new Date().toISOString().slice(0,10),
+    status: "active" as const,
+    totalApplications: 0,
+    approvedLoans: 0,
+    kycStatus: "pending" as const,
+    lastActive: new Date().toISOString(),
+  });
 
   // Load data on mount
   useEffect(() => {
@@ -119,6 +131,23 @@ const Admin = () => {
     
     return filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }, [applications, searchQuery, filterStatus]);
+
+
+  // CSV Export
+  const exportCsv = () => {
+    const rows = [
+      ["ID","Name","Email","Phone","Type","Amount","Status","Date"],
+      ...filteredApplications.map(a => [a.id, a.name, a.email, a.phone, a.type, a.amount, a.status, a.date])
+    ];
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `applications_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   const stats = [
     {
@@ -214,7 +243,7 @@ const Admin = () => {
             ))}
           </div>
           <div className="mt-6">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => setActiveTab("applications") }>
               View All Applications
             </Button>
           </div>
@@ -249,7 +278,7 @@ const Admin = () => {
               <SelectItem value="review">Review</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
+          <Button variant="outline" onClick={exportCsv}>
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -324,7 +353,10 @@ const Admin = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-text-primary">User Management</h2>
-        <Button>Add User</Button>
+        <Button onClick={() => setIsAddUserOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add User
+        </Button>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
@@ -446,7 +478,7 @@ const Admin = () => {
               <span>Processing fee</span>
               <span className="font-semibold">₹500</span>
             </div>
-            <Button variant="outline" className="w-full">Edit Settings</Button>
+            <Button variant="outline" className="w-full" onClick={() => toast({ title: "Edit Loan Settings", description: "This is a placeholder. Hook into backend to save settings." })}>Edit Settings</Button>
           </CardContent>
         </Card>
 
@@ -467,7 +499,13 @@ const Admin = () => {
               <span>IP restrictions</span>
               <Badge className="bg-yellow-100 text-yellow-800">Disabled</Badge>
             </div>
-            <Button variant="outline" className="w-full">Edit Settings</Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => toast({ title: "Edit Security Settings", description: "This is a placeholder. Hook into backend to save settings." })}
+            >
+              Edit Settings
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -696,6 +734,7 @@ const Admin = () => {
                     </div>
                   </button>
 
+
                   <button
                     onClick={() => setActiveTab("settings")}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
@@ -720,6 +759,52 @@ const Admin = () => {
           </div>
         </div>
       </div>
+
+      {/* Add User Dialog */}
+      <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+            <DialogDescription>Create a user record for tracking.</DialogDescription>
+          </DialogHeader>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label>Name</Label>
+              <Input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} />
+            </div>
+            <div>
+              <Label>Phone</Label>
+              <Input value={newUser.phone} onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} />
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select value={newUser.status} onValueChange={(v: any) => setNewUser({ ...newUser, status: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>Cancel</Button>
+            <Button onClick={async () => {
+              // @ts-ignore addUser exists in store
+              const created = await (useDataStore.getState() as any).addUser(newUser);
+              toast({ title: "User Added", description: created.email });
+              setIsAddUserOpen(false);
+            }}>Add User</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

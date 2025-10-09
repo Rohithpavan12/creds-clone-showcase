@@ -69,7 +69,7 @@ const Hero = () => {
             <div className="space-y-2">
               <p className="text-text-secondary font-medium">FUNDING DREAMS. FUELLING CAREERS.</p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary leading-tight">
-                Get Education Loan in{" "}
+                Get Education Loan in {" "}
                 <span className="text-primary">48 hours*</span>
               </h1>
             </div>
@@ -176,9 +176,7 @@ const Footer = () => {
               </div>
               <span className="text-xl font-bold">UniCreds</span>
             </div>
-            <p className="text-gray-300">
-              Making education financing accessible and affordable for students worldwide.
-            </p>
+            <p className="text-gray-300">Making education financing accessible and affordable for students worldwide.</p>
           </div>
 
           <div className="space-y-4">

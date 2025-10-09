@@ -99,33 +99,28 @@ const AdminLogin = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-20" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-      }}></div>
-
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       {/* Back to Home Link */}
       <Link 
         to="/" 
-        className="absolute top-8 left-8 flex items-center space-x-2 text-white/80 hover:text-white transition-colors"
+        className="absolute top-8 left-8 flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
       >
         <ArrowLeft className="w-5 h-5" />
         <span>Back to Home</span>
       </Link>
 
       {/* Login Card */}
-      <Card className="w-full max-w-md relative z-10 shadow-2xl border-gray-700 bg-gray-800/90 backdrop-blur-sm">
+      <Card className="w-full max-w-md relative z-10 shadow-lg">
         <CardHeader className="space-y-1 pb-6">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-lg">
               <Shield className="w-8 h-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-center text-white">
+          <CardTitle className="text-2xl font-bold text-center text-text-primary">
             Admin Portal
           </CardTitle>
-          <CardDescription className="text-center text-gray-400">
+          <CardDescription className="text-center text-text-secondary">
             Enter your credentials to access the admin dashboard
           </CardDescription>
         </CardHeader>
@@ -134,7 +129,7 @@ const AdminLogin = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Error Alert */}
             {error && (
-              <Alert variant="destructive" className="bg-red-900/20 border-red-800">
+              <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -142,7 +137,7 @@ const AdminLogin = () => {
 
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-200">
+              <Label htmlFor="email">
                 Email Address
               </Label>
               <div className="relative">
@@ -153,7 +148,7 @@ const AdminLogin = () => {
                   placeholder="admin@unicreds.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                  className="pl-10"
                   disabled={isLoading}
                   required
                 />
@@ -162,7 +157,7 @@ const AdminLogin = () => {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-200">
+              <Label htmlFor="password">
                 Password
               </Label>
               <div className="relative">
@@ -173,14 +168,14 @@ const AdminLogin = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
+                  className="pl-10 pr-10"
                   disabled={isLoading}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -198,18 +193,18 @@ const AdminLogin = () => {
                   id="remember"
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                  className="border-gray-600 data-[state=checked]:bg-blue-600"
+                  className=""
                 />
                 <Label 
                   htmlFor="remember" 
-                  className="text-sm text-gray-300 cursor-pointer"
+                  className="text-sm cursor-pointer"
                 >
                   Remember me
                 </Label>
               </div>
               <button
                 type="button"
-                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
                 onClick={() => {
                   toast({
                     title: "Password Reset",
@@ -224,7 +219,7 @@ const AdminLogin = () => {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5"
+              className="w-full"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -239,21 +234,21 @@ const AdminLogin = () => {
           </form>
 
           {/* Security Notice */}
-          <div className="mt-6 p-3 bg-blue-900/20 border border-blue-800/30 rounded-lg">
-            <p className="text-xs text-blue-300 text-center">
+          <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-700 text-center">
               <Shield className="inline w-3 h-3 mr-1" />
               This is a secure area. All activities are monitored and logged.
             </p>
           </div>
 
           {/* Demo Credentials (Remove in production) */}
-          <div className="mt-4 p-3 bg-gray-700/30 border border-gray-600/30 rounded-lg">
-            <p className="text-xs text-gray-400 text-center mb-2">Demo Credentials:</p>
+          <div className="mt-4 p-3 bg-gray-50 border rounded-lg">
+            <p className="text-xs text-gray-600 text-center mb-2">Demo Credentials:</p>
             <div className="space-y-1">
-              <p className="text-xs text-gray-300 text-center">
+              <p className="text-xs text-gray-700 text-center">
                 <span className="font-mono">admin@unicreds.com</span> / <span className="font-mono">UniCreds@2024!</span>
               </p>
-              <p className="text-xs text-gray-300 text-center">
+              <p className="text-xs text-gray-700 text-center">
                 <span className="font-mono">manager@unicreds.com</span> / <span className="font-mono">Manager@2024!</span>
               </p>
             </div>
