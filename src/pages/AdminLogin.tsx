@@ -99,18 +99,18 @@ const AdminLogin = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       {/* Back to Home Link */}
       <Link 
         to="/" 
-        className="absolute top-8 left-8 flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+        className="absolute top-6 left-6 flex items-center space-x-2 text-text-secondary hover:text-text-primary transition-colors"
       >
         <ArrowLeft className="w-5 h-5" />
         <span>Back to Home</span>
       </Link>
 
       {/* Login Card */}
-      <Card className="w-full max-w-md relative z-10 shadow-lg">
+      <Card className="w-full max-w-md relative z-10 shadow-sm border border-border bg-white">
         <CardHeader className="space-y-1 pb-6">
           <div className="flex items-center justify-center mb-4">
             <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-lg">
@@ -219,6 +219,7 @@ const AdminLogin = () => {
             {/* Submit Button */}
             <Button
               type="submit"
+              variant="cta"
               className="w-full"
               disabled={isLoading}
             >
