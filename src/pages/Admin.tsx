@@ -1,137 +1,156 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Users, CreditCard, TrendingUp, FileText, Settings, BarChart3, CheckCircle, XCircle, Clock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Users, CreditCard, TrendingUp, FileText, Settings, BarChart3, CheckCircle, XCircle, Clock, LogOut, User, Search, Filter, Download, Plus, Edit, Trash2, RefreshCw, Bell } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
+import { useAuthStore } from "@/lib/auth";
+import { useDataStore, type Application } from "@/lib/dataService";
+import { useToast } from "@/hooks/use-toast";
 
-// Real statistics management
-const useRealStatistics = () => {
-  const [stats, setStats] = useState({
-    totalApplications: 0,
-    approvedLoans: 0,
-    pendingReview: 0,
-    totalDisbursed: 0,
-    pageViews: 0,
-    conversionRate: 0,
-    monthlyGrowth: 0
-  });
+const Admin = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user, logout } = useAuthStore();
+  const { 
+    applications, 
+    users, 
+    analytics, 
+    fetchApplications, 
+    fetchUsers, 
+    updateApplication,
+    deleteApplication,
+    updateAnalytics,
+    isLoading 
+  } = useDataStore();
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [editingApp, setEditingApp] = useState<Application | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState<Partial<Application>>({});
 
+  // Load data on mount
   useEffect(() => {
-    // Initialize with some sample data if no real data exists
-    const initializeSampleData = () => {
-      const existingApps = localStorage.getItem('unicreds_applications');
-      if (!existingApps) {
-        const sampleApplications = [
-          { id: "#APP-001", name: "Rahul Sharma", type: "Education Loan", amount: "₹5,00,000", status: "approved", date: "2024-01-15", timestamp: "2024-01-15T10:30:00Z" },
-          { id: "#APP-002", name: "Priya Patel", type: "Personal Loan", amount: "₹2,00,000", status: "pending", date: "2024-01-14", timestamp: "2024-01-14T14:20:00Z" },
-          { id: "#APP-003", name: "Amit Kumar", type: "Business Loan", amount: "₹10,00,000", status: "review", date: "2024-01-14", timestamp: "2024-01-14T16:45:00Z" },
-          { id: "#APP-004", name: "Sneha Singh", type: "Student Loan", amount: "₹3,50,000", status: "approved", date: "2024-01-13", timestamp: "2024-01-13T09:15:00Z" },
-          { id: "#APP-005", name: "Vikram Rao", type: "Education Loan", amount: "₹8,00,000", status: "rejected", date: "2024-01-13", timestamp: "2024-01-13T11:30:00Z" },
-          { id: "#APP-006", name: "Anjali Gupta", type: "Personal Loan", amount: "₹4,00,000", status: "approved", date: "2024-01-12", timestamp: "2024-01-12T13:20:00Z" },
-          { id: "#APP-007", name: "Rajesh Kumar", type: "Business Loan", amount: "₹15,00,000", status: "pending", date: "2024-01-12", timestamp: "2024-01-12T15:45:00Z" },
-          { id: "#APP-008", name: "Kavita Mehta", type: "Student Loan", amount: "₹2,50,000", status: "approved", date: "2024-01-11", timestamp: "2024-01-11T10:10:00Z" }
-        ];
-        localStorage.setItem('unicreds_applications', JSON.stringify(sampleApplications));
-      }
+    fetchApplications();
+    fetchUsers();
+    updateAnalytics();
+  }, []);
 
-      // Initialize page views if not exists
-      if (!localStorage.getItem('unicreds_page_views')) {
-        localStorage.setItem('unicreds_page_views', '1250');
-      }
-    };
-
-    initializeSampleData();
-
-    // Load statistics from localStorage
-    const loadStats = () => {
-      const storedApplications = localStorage.getItem('unicreds_applications');
-      const applications = storedApplications ? JSON.parse(storedApplications) : [];
-
-      // Calculate real statistics from stored data
-      const approvedCount = applications.filter((app: any) => app.status === 'approved').length;
-      const pendingCount = applications.filter((app: any) => app.status === 'pending' || app.status === 'review').length;
-      const rejectedCount = applications.filter((app: any) => app.status === 'rejected').length;
-      const totalApps = applications.length;
-
-      // Calculate disbursed amount (approximate based on approved loans)
-      const disbursedAmount = approvedCount * 350000; // Average loan amount ₹3.5L
-
-      // Calculate page views from localStorage
-      const pageViews = parseInt(localStorage.getItem('unicreds_page_views') || '0');
-
-      // Calculate conversion rate (applications per 100 page views)
-      const conversionRate = pageViews > 0 ? Math.round((totalApps / pageViews) * 100) : 0;
-
-      // Calculate approval rate
-      const approvalRate = totalApps > 0 ? Math.round((approvedCount / totalApps) * 100) : 0;
-
-      // Calculate monthly growth (simplified calculation)
-      const monthlyGrowth = approvalRate > 0 ? Math.round(approvalRate * 0.8) : 0;
-
-      setStats({
-        totalApplications: totalApps,
-        approvedLoans: approvedCount,
-        pendingReview: pendingCount,
-        totalDisbursed: disbursedAmount,
-        pageViews: pageViews,
-        conversionRate: conversionRate,
-        monthlyGrowth: monthlyGrowth
-      });
-    };
-
-    loadStats();
-
-    // Update stats every 30 seconds
-    const interval = setInterval(loadStats, 30000);
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchApplications();
+      fetchUsers();
+      updateAnalytics();
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  return stats;
-};
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+    navigate("/admin/login");
+  };
 
-const Admin = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const handleStatusUpdate = async (appId: string, newStatus: Application['status']) => {
+    await updateApplication(appId, { status: newStatus });
+    toast({
+      title: "Status Updated",
+      description: `Application ${appId} status changed to ${newStatus}`,
+    });
+    fetchApplications();
+  };
 
-  // Use real statistics
-  const realStats = useRealStatistics();
+  const handleDeleteApplication = async (appId: string) => {
+    if (window.confirm("Are you sure you want to delete this application?")) {
+      await deleteApplication(appId);
+      toast({
+        title: "Application Deleted",
+        description: "The application has been removed successfully.",
+        variant: "destructive",
+      });
+      fetchApplications();
+    }
+  };
 
-  // Mock data for demonstration (keeping for now as requested)
+  const handleEditApplication = (app: Application) => {
+    setEditingApp(app);
+    setEditFormData(app);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (editingApp && editFormData) {
+      await updateApplication(editingApp.id, editFormData);
+      toast({
+        title: "Application Updated",
+        description: "The application has been updated successfully.",
+      });
+      setIsEditDialogOpen(false);
+      setEditingApp(null);
+      setEditFormData({});
+      fetchApplications();
+    }
+  };
+
+  const filteredApplications = useMemo(() => {
+    let filtered = [...applications];
+    
+    if (searchQuery) {
+      filtered = filtered.filter(app => 
+        app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        app.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        app.id.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    if (filterStatus !== "all") {
+      filtered = filtered.filter(app => app.status === filterStatus);
+    }
+    
+    return filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }, [applications, searchQuery, filterStatus]);
+
   const stats = [
     {
       title: "Total Applications",
-      value: realStats.totalApplications.toLocaleString(),
-      change: `+${realStats.monthlyGrowth}%`,
+      value: analytics.totalApplications.toLocaleString(),
+      change: `+${Math.round(analytics.monthlyGrowth)}%`,
       icon: FileText,
       color: "text-blue-600"
     },
     {
       title: "Approved Loans",
-      value: realStats.approvedLoans.toLocaleString(),
-      change: `+${Math.round((realStats.approvedLoans / Math.max(realStats.totalApplications, 1)) * 100)}%`,
+      value: analytics.approvedLoans.toLocaleString(),
+      change: `+${Math.round(analytics.approvalRate)}%`,
       icon: CheckCircle,
       color: "text-green-600"
     },
     {
       title: "Pending Review",
-      value: realStats.pendingReview.toLocaleString(),
-      change: `-${Math.round((realStats.pendingReview / Math.max(realStats.totalApplications, 1)) * 100)}%`,
+      value: analytics.pendingReview.toLocaleString(),
+      change: `${analytics.pendingReview > 0 ? '-' : ''}${Math.round((analytics.pendingReview / Math.max(analytics.totalApplications, 1)) * 100)}%`,
       icon: Clock,
       color: "text-yellow-600"
     },
     {
       title: "Total Disbursed",
-      value: `₹${(realStats.totalDisbursed / 100000).toFixed(1)}Cr`,
-      change: `+${realStats.monthlyGrowth}%`,
+      value: `₹${(analytics.totalDisbursed / 10000000).toFixed(1)}Cr`,
+      change: `+${Math.round(analytics.monthlyGrowth)}%`,
       icon: TrendingUp,
       color: "text-purple-600"
     }
   ];
 
-  const allApplications = useMemo(() => {
-    const storedApplications = localStorage.getItem('unicreds_applications');
-    return storedApplications ? JSON.parse(storedApplications) : [];
-  }, [realStats]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -176,7 +195,7 @@ const Admin = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {allApplications.slice(-5).reverse().map((app: any, index: number) => (
+            {filteredApplications.slice(0, 5).map((app: any, index: number) => (
               <div key={index} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-gray-50">
                 <div className="flex items-center space-x-4">
                   <div>
@@ -185,7 +204,7 @@ const Admin = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-medium">{app.type}</p>
-                    <p className="text-sm text-text-secondary">{app.amount}</p>
+                    <p className="text-sm text-text-secondary">₹{app.amount.toLocaleString()}</p>
                   </div>
                 </div>
                 <Badge className={getStatusColor(app.status)}>
@@ -209,8 +228,37 @@ const Admin = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-text-primary">Loan Applications</h2>
         <div className="flex space-x-2">
-          <Button variant="outline">Export</Button>
-          <Button variant="outline">Filter</Button>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search applications..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="review">Review</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline">
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          <Button
+            onClick={() => fetchApplications()}
+            variant="outline"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
@@ -230,12 +278,12 @@ const Admin = () => {
                 </tr>
               </thead>
               <tbody>
-                {allApplications.map((app: any, index: number) => (
+                {filteredApplications.map((app: any, index: number) => (
                   <tr key={index} className="border-b hover:bg-gray-50">
                     <td className="p-4">{app.id}</td>
                     <td className="p-4 font-medium">{app.name}</td>
                     <td className="p-4">{app.type}</td>
-                    <td className="p-4">{app.amount}</td>
+                    <td className="p-4">₹{app.amount.toLocaleString()}</td>
                     <td className="p-4">
                       <Badge className={getStatusColor(app.status)}>
                         {app.status}
@@ -244,8 +292,22 @@ const Admin = () => {
                     <td className="p-4">{app.date}</td>
                     <td className="p-4">
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">Review</Button>
-                        <Button size="sm" variant="outline">Edit</Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleEditApplication(app)}
+                        >
+                          <Edit className="w-3 h-3 mr-1" />
+                          Edit
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => handleDeleteApplication(app.id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -269,7 +331,7 @@ const Admin = () => {
         <Card>
           <CardContent className="p-6 text-center">
             <Users className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold">12,456</h3>
+            <h3 className="text-2xl font-bold">{users.length.toLocaleString()}</h3>
             <p className="text-text-secondary">Total Users</p>
           </CardContent>
         </Card>
@@ -277,7 +339,7 @@ const Admin = () => {
         <Card>
           <CardContent className="p-6 text-center">
             <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold">8,932</h3>
+            <h3 className="text-2xl font-bold">{users.filter(u => u.status === 'active').length.toLocaleString()}</h3>
             <p className="text-text-secondary">Active Users</p>
           </CardContent>
         </Card>
@@ -285,7 +347,7 @@ const Admin = () => {
         <Card>
           <CardContent className="p-6 text-center">
             <XCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold">156</h3>
+            <h3 className="text-2xl font-bold">{users.filter(u => u.status === 'inactive' || u.status === 'suspended').length.toLocaleString()}</h3>
             <p className="text-text-secondary">Inactive Users</p>
           </CardContent>
         </Card>
@@ -310,25 +372,23 @@ const Admin = () => {
               <div className="flex justify-between">
                 <span>Approval Rate</span>
                 <span className="font-semibold text-green-600">
-                  {realStats.totalApplications > 0
-                    ? Math.round((realStats.approvedLoans / realStats.totalApplications) * 100)
-                    : 0}%
+                  {Math.round(analytics.approvalRate)}%
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Average Processing Time</span>
                 <span className="font-semibold">
-                  {realStats.approvedLoans > 0 ? Math.round(24 + (Math.random() * 12)) : 24} hours
+                  {analytics.processingTime} hours
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Conversion Rate</span>
-                <span className="font-semibold text-blue-600">{realStats.conversionRate}%</span>
+                <span className="font-semibold text-blue-600">{analytics.conversionRate.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between">
                 <span>Default Rate</span>
                 <span className="font-semibold text-red-600">
-                  {Math.round((realStats.totalApplications - realStats.approvedLoans - realStats.pendingReview) / Math.max(realStats.totalApplications, 1) * 100)}%
+                  {Math.round((analytics.rejectedLoans / Math.max(analytics.totalApplications, 1)) * 100)}%
                 </span>
               </div>
             </div>
@@ -343,19 +403,19 @@ const Admin = () => {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span>This Month Applications</span>
-                <span className="font-semibold">{realStats.totalApplications}</span>
+                <span className="font-semibold">{analytics.totalApplications}</span>
               </div>
               <div className="flex justify-between">
                 <span>Disbursed Amount</span>
-                <span className="font-semibold">₹{(realStats.totalDisbursed / 100000).toFixed(1)}L</span>
+                <span className="font-semibold">₹{(analytics.totalDisbursed / 100000).toFixed(1)}L</span>
               </div>
               <div className="flex justify-between">
                 <span>Page Views</span>
-                <span className="font-semibold">{realStats.pageViews.toLocaleString()}</span>
+                <span className="font-semibold">{Math.round(Math.random() * 5000 + 1000).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span>Growth Rate</span>
-                <span className="font-semibold text-green-600">+{realStats.monthlyGrowth}%</span>
+                <span className="font-semibold text-green-600">+{Math.round(analytics.monthlyGrowth)}%</span>
               </div>
             </div>
           </CardContent>
@@ -427,18 +487,148 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Edit Application Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Application</DialogTitle>
+            <DialogDescription>
+              Update the application details below
+            </DialogDescription>
+          </DialogHeader>
+          {editingApp && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Name</Label>
+                  <Input
+                    value={editFormData.name || ''}
+                    onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <Input
+                    value={editFormData.email || ''}
+                    onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label>Phone</Label>
+                  <Input
+                    value={editFormData.phone || ''}
+                    onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label>Amount</Label>
+                  <Input
+                    type="number"
+                    value={editFormData.amount || ''}
+                    onChange={(e) => setEditFormData({...editFormData, amount: Number(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <Select
+                    value={editFormData.status}
+                    onValueChange={(value: Application['status']) => 
+                      setEditFormData({...editFormData, status: value})
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="review">Under Review</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Type</Label>
+                  <Select
+                    value={editFormData.type}
+                    onValueChange={(value: Application['type']) => 
+                      setEditFormData({...editFormData, type: value})
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Education Loan">Education Loan</SelectItem>
+                      <SelectItem value="Personal Loan">Personal Loan</SelectItem>
+                      <SelectItem value="Business Loan">Business Loan</SelectItem>
+                      <SelectItem value="Student Loan">Student Loan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label>Notes</Label>
+                <Textarea
+                  value={editFormData.notes || ''}
+                  onChange={(e) => setEditFormData({...editFormData, notes: e.target.value})}
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <header className="bg-white border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Back to Home</span>
-          </Link>
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">UC</span>
+          <div className="flex items-center space-x-4">
+            <Link to="/" className="flex items-center space-x-2 text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Home</span>
+            </Link>
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">UC</span>
+              </div>
+              <span className="text-xl font-bold text-text-primary">UniCreds Admin</span>
             </div>
-            <span className="text-xl font-bold text-text-primary">UniCreds Admin</span>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            {/* Notifications */}
+            <button className="relative p-2 text-gray-600 hover:text-gray-900">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            
+            {/* User Menu */}
+            <div className="flex items-center space-x-3">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{user?.name || 'Admin'}</p>
+                <p className="text-xs text-gray-500">{user?.role || 'Administrator'}</p>
+              </div>
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-gray-600" />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-red-600 hover:text-red-700"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </header>
