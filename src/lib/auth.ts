@@ -36,28 +36,31 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: async (email: string, password: string) => {
-        // Production credentials for Fundineed
-        const credentials = [
-          { email: 'fundineed@gmail.com', password: 'FINSOLUTIONS2K25', name: 'Fundineed Admin', role: 'super_admin' as const }
-        ];
+        // Production credentials for Fundineed - ONLY these credentials work
+        const validEmail = 'FUNDINEED@GMAIL.COM';
+        const validPassword = 'FINSOLUTIONS2K25';
+        
+        // Normalize email comparison (case insensitive)
+        const normalizedEmail = email.toUpperCase().trim();
+        const normalizedValidEmail = validEmail.toUpperCase().trim();
+        
+        // Check exact credentials match
+        if (normalizedEmail !== normalizedValidEmail || password !== validPassword) {
+          return { success: false, message: 'Invalid email or password' };
+        }
 
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        const credential = credentials.find(cred => cred.email === email && cred.password === password);
-        
-        if (!credential) {
-          return { success: false, message: 'Invalid email or password' };
-        }
-
+        // Create user object for valid login
         const now = new Date().toISOString();
         const user: User = {
-          id: credential.email.split('@')[0],
-          email: credential.email,
-          name: credential.name,
-          role: credential.role,
+          id: 'fundineed',
+          email: validEmail,
+          name: 'Fundineed Admin',
+          role: 'super_admin',
           lastLogin: now,
-          sessionToken: `demo_token_${Date.now()}`,
+          sessionToken: `fundineed_token_${Date.now()}`,
         };
 
         set({ user, isAuthenticated: true });
