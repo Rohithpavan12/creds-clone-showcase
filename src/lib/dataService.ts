@@ -9,11 +9,12 @@ export interface Application {
   email: string;
   phone: string;
   type: 'Education Loan' | 'Personal Loan' | 'Business Loan' | 'Student Loan';
-  amount: number;
+  amount: string | number;
   status: 'pending' | 'approved' | 'rejected' | 'review';
   date: string;
   timestamp: string;
-  documents?: string[];
+  documents?: any[];
+  formData?: any;
   notes?: string;
   assignedTo?: string;
   creditScore?: number;
@@ -101,6 +102,7 @@ export const useDataStore = create<DataState>()(
         
         const storedApps = localStorage.getItem('fundineed_applications_db');
         const applications = storedApps ? JSON.parse(storedApps) : [];
+        
         
         set({ applications, isLoading: false });
         get().updateAnalytics();
@@ -195,9 +197,15 @@ export const useDataStore = create<DataState>()(
         const pending = applications.filter(app => app.status === 'pending' || app.status === 'review');
         const rejected = applications.filter(app => app.status === 'rejected');
         
-        const totalDisbursed = approved.reduce((sum, app) => sum + app.amount, 0);
+        const totalDisbursed = approved.reduce((sum, app) => {
+          const amount = typeof app.amount === 'string' ? 0 : app.amount;
+          return sum + amount;
+        }, 0);
         const averageAmount = applications.length > 0 
-          ? applications.reduce((sum, app) => sum + app.amount, 0) / applications.length 
+          ? applications.reduce((sum, app) => {
+              const amount = typeof app.amount === 'string' ? 0 : app.amount;
+              return sum + amount;
+            }, 0) / applications.length 
           : 0;
         
         const approvalRate = applications.length > 0 

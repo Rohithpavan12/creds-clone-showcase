@@ -36,16 +36,15 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: async (email: string, password: string) => {
-        // Demo credentials for Fundineed
-        const demoCredentials = [
-          { email: 'admin@fundineed.com', password: 'Fundineed@2024!', name: 'Admin User', role: 'super_admin' as const },
-          { email: 'manager@fundineed.com', password: 'Manager@2024!', name: 'Manager User', role: 'manager' as const }
+        // Production credentials for Fundineed
+        const credentials = [
+          { email: 'fundineed@gmail.com', password: 'FINSOLUTIONS2K25', name: 'Fundineed Admin', role: 'super_admin' as const }
         ];
 
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        const credential = demoCredentials.find(cred => cred.email === email && cred.password === password);
+        const credential = credentials.find(cred => cred.email === email && cred.password === password);
         
         if (!credential) {
           return { success: false, message: 'Invalid email or password' };

@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import { useAuthStore } from "@/lib/auth";
 import { useDataStore, type Application } from "@/lib/dataService";
+import { useAnalyticsStore } from "@/lib/analytics";
 import { useToast } from "@/hooks/use-toast";
 
 const Admin = () => {
@@ -52,6 +53,9 @@ const Admin = () => {
     fetchApplications();
     fetchUsers();
     updateAnalytics();
+    
+    // Initialize analytics session
+    useAnalyticsStore.getState().initializeSession();
   }, []);
 
   // Auto-refresh data every 30 seconds
@@ -233,7 +237,7 @@ const Admin = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-medium">{app.type}</p>
-                    <p className="text-sm text-text-secondary">₹{app.amount.toLocaleString()}</p>
+                    <p className="text-sm text-text-secondary">₹{typeof app.amount === 'number' ? app.amount.toLocaleString() : app.amount}</p>
                   </div>
                 </div>
                 <Badge className={getStatusColor(app.status)}>
@@ -314,12 +318,14 @@ const Admin = () => {
                       <div className="flex items-center space-x-2">
                         <span>{app.name}</span>
                         {app.documents && app.documents.length > 0 && (
-                          <div className="w-2 h-2 bg-success rounded-full" title={`${app.documents.length} documents uploaded`}></div>
+                          <Badge variant="secondary" className="ml-2 bg-success/10 text-success border-success/20 text-xs">
+                            {app.documents.length} docs
+                          </Badge>
                         )}
                       </div>
                     </td>
                     <td className="p-4 text-text-secondary">{app.type}</td>
-                    <td className="p-4 text-text-primary">₹{app.amount?.toLocaleString() || 'N/A'}</td>
+                    <td className="p-4 text-text-primary">₹{typeof app.amount === 'number' ? app.amount.toLocaleString() : (app.amount || 'N/A')}</td>
                     <td className="p-4">
                       <Badge className={getStatusColor(app.status)}>
                         {app.status}
@@ -450,7 +456,7 @@ const Admin = () => {
               </div>
               <div className="flex justify-between">
                 <span>Page Views</span>
-                <span className="font-semibold">{Math.round(Math.random() * 5000 + 1000).toLocaleString()}</span>
+                <span className="font-semibold">{useAnalyticsStore.getState().getAnalytics().totalPageViews.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span>Growth Rate</span>
@@ -534,7 +540,7 @@ const Admin = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Edit Application Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Application Details</DialogTitle>
             <DialogDescription>
@@ -543,6 +549,24 @@ const Admin = () => {
           </DialogHeader>
           {editingApp && (
             <div className="space-y-4">
+              {/* Application Summary */}
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-text-secondary">Application ID</Label>
+                    <p className="text-lg font-semibold text-primary">{editingApp.id}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-text-secondary">Loan Type</Label>
+                    <p className="text-lg font-semibold text-text-primary">{editingApp.type}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-text-secondary">Loan Amount</Label>
+                    <p className="text-lg font-semibold text-text-primary">₹{typeof editingApp.amount === 'number' ? editingApp.amount.toLocaleString() : (editingApp.amount || 'N/A')}</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Name</Label>
@@ -621,24 +645,286 @@ const Admin = () => {
                 />
               </div>
               
+              {/* Complete Application Details */}
+              {editingApp && editingApp.formData && (
+                <div className="mt-6">
+                  <Label className="text-base font-semibold">Complete Application Details</Label>
+                  <div className="mt-3 grid grid-cols-2 gap-4 p-4 border border-border rounded-lg bg-muted/20">
+                    <div>
+                      <Label className="text-sm font-medium text-text-secondary">Date of Birth</Label>
+                      <p className="text-sm text-text-primary">{editingApp.formData.dateOfBirth || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-text-secondary">Aadhar Number</Label>
+                      <p className="text-sm text-text-primary">{editingApp.formData.aadhar || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-text-secondary">PAN Number</Label>
+                      <p className="text-sm text-text-primary">{editingApp.formData.pan || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-text-secondary">Loan Purpose</Label>
+                      <p className="text-sm text-text-primary">{editingApp.formData.loanPurpose || 'Not provided'}</p>
+                    </div>
+                    {editingApp.formData.course && (
+                      <>
+                        <div>
+                          <Label className="text-sm font-medium text-text-secondary">Course</Label>
+                          <p className="text-sm text-text-primary">{editingApp.formData.course}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-text-secondary">Institution</Label>
+                          <p className="text-sm text-text-primary">{editingApp.formData.institution}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-text-secondary">Course Year</Label>
+                          <p className="text-sm text-text-primary">{editingApp.formData.courseYear}</p>
+                        </div>
+                      </>
+                    )}
+                    {editingApp.formData.companyName && (
+                      <>
+                        <div>
+                          <Label className="text-sm font-medium text-text-secondary">Company</Label>
+                          <p className="text-sm text-text-primary">{editingApp.formData.companyName}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-text-secondary">Employment Type</Label>
+                          <p className="text-sm text-text-primary">{editingApp.formData.employmentType}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-text-secondary">Work Experience</Label>
+                          <p className="text-sm text-text-primary">{editingApp.formData.workExperience}</p>
+                        </div>
+                      </>
+                    )}
+                    {editingApp.formData.businessName && (
+                      <>
+                        <div>
+                          <Label className="text-sm font-medium text-text-secondary">Business Name</Label>
+                          <p className="text-sm text-text-primary">{editingApp.formData.businessName}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-text-secondary">Business Type</Label>
+                          <p className="text-sm text-text-primary">{editingApp.formData.businessType}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-text-secondary">Business Age</Label>
+                          <p className="text-sm text-text-primary">{editingApp.formData.businessAge}</p>
+                        </div>
+                      </>
+                    )}
+                    <div>
+                      <Label className="text-sm font-medium text-text-secondary">Family Income</Label>
+                      <p className="text-sm text-text-primary">{editingApp.formData.familyIncome || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-text-secondary">Co-applicant</Label>
+                      <p className="text-sm text-text-primary">{editingApp.formData.coApplicant || 'Not provided'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Documents Section */}
               {editingApp && editingApp.documents && editingApp.documents.length > 0 && (
                 <div className="mt-6">
                   <Label className="text-base font-semibold">Uploaded Documents</Label>
                   <div className="mt-3 space-y-3">
                     {editingApp.documents.map((doc: any, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/50">
-                        <div className="flex items-center space-x-3">
-                          <FileText className="w-5 h-5 text-primary" />
-                          <div>
+                      <div key={index} className="flex items-center justify-between p-4 border border-border rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
+                        <div className="flex items-center space-x-3 flex-1">
+                          <FileText className="w-6 h-6 text-primary" />
+                          <div className="flex-1">
                             <p className="text-sm font-medium text-text-primary">{doc.name}</p>
                             <p className="text-xs text-text-secondary">
                               {doc.type.charAt(0).toUpperCase() + doc.type.slice(1)} • {(doc.size / 1024).toFixed(1)} KB
                             </p>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <span className="text-xs text-text-secondary">
+                                Uploaded: {new Date(doc.uploadedAt).toLocaleDateString()}
+                              </span>
+                              {doc.base64 ? (
+                                <Badge variant="secondary" className="bg-success/10 text-success border-success/20 text-xs">
+                                  Ready to View
+                                </Badge>
+                              ) : (
+                                <Badge variant="secondary" className="bg-destructive/10 text-destructive border-destructive/20 text-xs">
+                                  Data Missing
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-xs text-text-secondary">
-                          {new Date(doc.uploadedAt).toLocaleDateString()}
+                        <div className="flex items-center space-x-2">
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                const debugInfo = {
+                                  name: doc.name,
+                                  hasBase64: !!doc.base64,
+                                  base64Length: doc.base64?.length || 0,
+                                  fileType: doc.fileType,
+                                  type: doc.type,
+                                  size: doc.size,
+                                  base64Start: doc.base64?.substring(0, 30) || 'No data'
+                                };
+                                console.log('Document debug info:', debugInfo);
+                                
+                                // Show detailed debug info
+                                alert(`Document Debug Info:
+Name: ${debugInfo.name}
+Has Base64: ${debugInfo.hasBase64}
+Base64 Length: ${debugInfo.base64Length}
+File Type: ${debugInfo.fileType || debugInfo.type}
+Size: ${debugInfo.size} bytes
+Base64 Start: ${debugInfo.base64Start}`);
+                              }}
+                            >
+                              Debug
+                            </Button>
+                          {doc.base64 ? (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="bg-primary hover:bg-primary/90 text-white"
+                                onClick={() => {
+                                  console.log('Document data:', doc); // Debug log
+                                  
+                                  if (!doc.base64) {
+                                    toast({
+                                      title: "Error",
+                                      description: "Document data not available. Please re-upload the document.",
+                                      variant: "destructive"
+                                    });
+                                    return;
+                                  }
+
+                                  try {
+                                    // For PDFs, try to open directly with base64
+                                    if (doc.fileType === 'application/pdf') {
+                                      const newWindow = window.open();
+                                      if (newWindow) {
+                                        newWindow.location.href = doc.base64;
+                                      }
+                                    } else {
+                                      // For images, create a simple viewer
+                                      const newWindow = window.open('', '_blank');
+                                      if (newWindow) {
+                                        newWindow.document.write(`
+                                          <!DOCTYPE html>
+                                          <html>
+                                          <head>
+                                            <title>${doc.name}</title>
+                                            <style>
+                                              body { 
+                                                margin: 0; 
+                                                padding: 20px; 
+                                                font-family: Arial, sans-serif; 
+                                                background: #f5f5f5;
+                                                display: flex;
+                                                flex-direction: column;
+                                                align-items: center;
+                                              }
+                                              .header { 
+                                                background: white; 
+                                                padding: 15px; 
+                                                margin-bottom: 20px; 
+                                                border-radius: 8px; 
+                                                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                                text-align: center;
+                                                max-width: 600px;
+                                                width: 100%;
+                                              }
+                                              .content { 
+                                                text-align: center; 
+                                                background: white;
+                                                padding: 20px;
+                                                border-radius: 8px;
+                                                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                              }
+                                              img { 
+                                                max-width: 90vw; 
+                                                max-height: 80vh; 
+                                                height: auto; 
+                                                border: 1px solid #ddd; 
+                                                border-radius: 4px;
+                                              }
+                                              .download-btn {
+                                                background: #8B2635;
+                                                color: white;
+                                                padding: 10px 20px;
+                                                border: none;
+                                                border-radius: 4px;
+                                                cursor: pointer;
+                                                margin-top: 15px;
+                                                text-decoration: none;
+                                                display: inline-block;
+                                              }
+                                              .download-btn:hover {
+                                                background: #722029;
+                                              }
+                                            </style>
+                                          </head>
+                                          <body>
+                                            <div class="header">
+                                              <h2>${doc.name}</h2>
+                                              <p>Type: ${doc.fileType} | Size: ${(doc.size / 1024).toFixed(1)} KB</p>
+                                              <a href="${doc.base64}" download="${doc.name}" class="download-btn">
+                                                Download Document
+                                              </a>
+                                            </div>
+                                            <div class="content">
+                                              <img src="${doc.base64}" alt="${doc.name}" onerror="this.style.display='none'; document.getElementById('error-msg').style.display='block';">
+                                              <div id="error-msg" style="display:none; color: red; padding: 20px;">
+                                                <p>Unable to display this image. You can download it using the button above.</p>
+                                              </div>
+                                            </div>
+                                          </body>
+                                          </html>
+                                        `);
+                                        newWindow.document.close();
+                                      }
+                                    }
+                                  } catch (error) {
+                                    console.error('Error opening document:', error);
+                                    toast({
+                                      title: "Error",
+                                      description: "Unable to open document. Please try downloading instead.",
+                                      variant: "destructive"
+                                    });
+                                  }
+                                }}
+                              >
+                                View
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  // Download document
+                                  const link = document.createElement('a');
+                                  link.href = doc.base64;
+                                  link.download = doc.name;
+                                  link.click();
+                                }}
+                              >
+                                Download
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled
+                            >
+                              No Data
+                            </Button>
+                          )}
+                          </div>
                         </div>
                       </div>
                     ))}

@@ -19,10 +19,10 @@ const Navbar = () => {
         </div>
 
         <nav className="hidden md:flex items-center space-x-8">
-          <Link to="/education-loan" className="text-text-secondary hover:text-primary transition-colors">Education Loan</Link>
-          <Link to="/student-loan" className="text-text-secondary hover:text-primary transition-colors">Student Loan</Link>
-          <Link to="/personal-loan" className="text-text-secondary hover:text-primary transition-colors">Personal Loan</Link>
-          <Link to="/business-loan" className="text-text-secondary hover:text-primary transition-colors">Business Loan</Link>
+          <Link to="/apply?type=education" className="text-text-secondary hover:text-primary transition-colors">Education Loan</Link>
+          <Link to="/apply?type=student" className="text-text-secondary hover:text-primary transition-colors">Student Loan</Link>
+          <Link to="/apply?type=personal" className="text-text-secondary hover:text-primary transition-colors">Personal Loan</Link>
+          <Link to="/apply?type=business" className="text-text-secondary hover:text-primary transition-colors">Business Loan</Link>
           <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">New</Badge>
           <Link to="/contact" className="text-text-secondary hover:text-primary transition-colors">Contact Us</Link>
         </nav>
@@ -44,10 +44,10 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-background border-t border-border">
           <nav className="container mx-auto px-4 py-4 space-y-4">
-            <Link to="/education-loan" className="block text-text-secondary hover:text-primary transition-colors">Education Loan</Link>
-            <Link to="/student-loan" className="block text-text-secondary hover:text-primary transition-colors">Student Loan</Link>
-            <Link to="/personal-loan" className="block text-text-secondary hover:text-primary transition-colors">Personal Loan</Link>
-            <Link to="/business-loan" className="block text-text-secondary hover:text-primary transition-colors">Business Loan</Link>
+            <Link to="/apply?type=education" className="block text-text-secondary hover:text-primary transition-colors">Education Loan</Link>
+            <Link to="/apply?type=student" className="block text-text-secondary hover:text-primary transition-colors">Student Loan</Link>
+            <Link to="/apply?type=personal" className="block text-text-secondary hover:text-primary transition-colors">Personal Loan</Link>
+            <Link to="/apply?type=business" className="block text-text-secondary hover:text-primary transition-colors">Business Loan</Link>
             <Link to="/contact" className="block text-text-secondary hover:text-primary transition-colors">Contact Us</Link>
             <Link to="/apply">
               <Button variant="cta" size="lg" className="w-full">Apply For Loan</Button>

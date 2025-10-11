@@ -145,7 +145,7 @@ const AdminLogin = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@unicreds.com"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -242,18 +242,6 @@ const AdminLogin = () => {
             </p>
           </div>
 
-          {/* Demo Credentials (Remove in production) */}
-          <div className="mt-4 p-3 bg-gray-50 border rounded-lg">
-            <p className="text-xs text-gray-600 text-center mb-2">Demo Credentials:</p>
-            <div className="space-y-1">
-              <p className="text-xs text-gray-700 text-center">
-                <span className="font-mono">admin@fundineed.com</span> / <span className="font-mono">Fundineed@2024!</span>
-              </p>
-              <p className="text-xs text-gray-700 text-center">
-                <span className="font-mono">manager@fundineed.com</span> / <span className="font-mono">Manager@2024!</span>
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

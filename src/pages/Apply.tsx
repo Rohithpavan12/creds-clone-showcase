@@ -6,12 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, Check, FileText, User, GraduationCap, DollarSign } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { trackEvent, trackPageView } from "@/lib/analytics";
 
 const Apply = () => {
+  const [searchParams] = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
+  const [loanType, setLoanType] = useState("Education Loan");
   const [formData, setFormData] = useState({
     // Personal Information
     firstName: "",
@@ -28,6 +31,16 @@ const Apply = () => {
     courseYear: "",
     loanPurpose: "",
     
+    // Personal Loan Fields
+    employmentType: "",
+    companyName: "",
+    workExperience: "",
+    
+    // Business Loan Fields
+    businessName: "",
+    businessType: "",
+    businessAge: "",
+    
     // Financial Information
     loanAmount: "",
     familyIncome: "",
@@ -37,7 +50,16 @@ const Apply = () => {
     acceptTerms: false
   });
 
-  const [uploadedFiles, setUploadedFiles] = useState<{[key: string]: File | null}>({
+  interface FileData {
+    base64: string;
+    name: string;
+    type: string;
+    fileType: string;
+    size: number;
+    uploadedAt: string;
+  }
+
+  const [uploadedFiles, setUploadedFiles] = useState<{[key: string]: FileData | null}>({
     passport: null,
     identity: null,
     address: null,
@@ -45,12 +67,98 @@ const Apply = () => {
     academic: null,
     admission: null,
     bank: null,
-    fee: null
+    fee: null,
+    employment: null,
+    business: null,
+    financial: null,
+    gst: null
   });
 
+  // Loan type configurations
+  const loanTypeConfig = {
+    "Education Loan": {
+      title: "Education Loan Application",
+      step2Title: "Education Info",
+      step2Icon: GraduationCap,
+      fields: ["course", "institution", "courseYear", "loanPurpose"],
+      documents: [
+        { name: "Passport size photographs", key: "passport" },
+        { name: "Identity proof (Aadhar/Passport)", key: "identity" }, 
+        { name: "Address proof", key: "address" },
+        { name: "Income proof of co-applicant", key: "income" },
+        { name: "Academic records & marksheets", key: "academic" },
+        { name: "Admission letter", key: "admission" },
+        { name: "Bank statements (6 months)", key: "bank" },
+        { name: "Fee structure from institution", key: "fee" }
+      ]
+    },
+    "Personal Loan": {
+      title: "Personal Loan Application",
+      step2Title: "Employment Info",
+      step2Icon: User,
+      fields: ["employmentType", "companyName", "workExperience", "loanPurpose"],
+      documents: [
+        { name: "Passport size photographs", key: "passport" },
+        { name: "Identity proof (Aadhar/Passport)", key: "identity" }, 
+        { name: "Address proof", key: "address" },
+        { name: "Income proof/Salary slips", key: "income" },
+        { name: "Bank statements (6 months)", key: "bank" },
+        { name: "Employment certificate", key: "employment" }
+      ]
+    },
+    "Business Loan": {
+      title: "Business Loan Application",
+      step2Title: "Business Info",
+      step2Icon: DollarSign,
+      fields: ["businessName", "businessType", "businessAge", "loanPurpose"],
+      documents: [
+        { name: "Passport size photographs", key: "passport" },
+        { name: "Identity proof (Aadhar/Passport)", key: "identity" }, 
+        { name: "Address proof", key: "address" },
+        { name: "Business registration documents", key: "business" },
+        { name: "Financial statements (2 years)", key: "financial" },
+        { name: "Bank statements (12 months)", key: "bank" },
+        { name: "GST returns", key: "gst" }
+      ]
+    },
+    "Student Loan": {
+      title: "Student Loan Application",
+      step2Title: "Study Info",
+      step2Icon: GraduationCap,
+      fields: ["course", "institution", "courseYear", "loanPurpose"],
+      documents: [
+        { name: "Passport size photographs", key: "passport" },
+        { name: "Identity proof (Aadhar/Passport)", key: "identity" }, 
+        { name: "Address proof", key: "address" },
+        { name: "Income proof of parents/guardian", key: "income" },
+        { name: "Academic records & marksheets", key: "academic" },
+        { name: "Admission letter", key: "admission" },
+        { name: "Bank statements (6 months)", key: "bank" }
+      ]
+    }
+  };
+
+  // Detect loan type from URL parameters and track page view
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type) {
+      const formattedType = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() + ' Loan';
+      if (loanTypeConfig[formattedType as keyof typeof loanTypeConfig]) {
+        setLoanType(formattedType);
+        trackPageView(`Apply - ${formattedType}`);
+      }
+    } else {
+      trackPageView('Apply - Education Loan');
+    }
+    
+    trackEvent('application_started', { loanType: loanType });
+  }, [searchParams, loanType]);
+
+  const currentConfig = loanTypeConfig[loanType as keyof typeof loanTypeConfig];
+  
   const steps = [
     { id: 1, title: "Personal Details", icon: User },
-    { id: 2, title: "Education Info", icon: GraduationCap },
+    { id: 2, title: currentConfig?.step2Title || "Education Info", icon: currentConfig?.step2Icon || GraduationCap },
     { id: 3, title: "Financial Details", icon: DollarSign },
     { id: 4, title: "Documents", icon: FileText }
   ];
@@ -85,15 +193,57 @@ const Apply = () => {
       return;
     }
 
-    setUploadedFiles(prev => ({
-      ...prev,
-      [documentType]: file
-    }));
+    // Convert file to base64 for storage
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64Result = e.target?.result as string;
+      
+      // Debug log to check base64 data
+      console.log('File uploaded:', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        base64Length: base64Result?.length || 0,
+        base64Preview: base64Result?.substring(0, 50) + '...'
+      });
 
-    toast({
-      title: "File uploaded successfully",
-      description: `${file.name} has been uploaded.`,
-    });
+      const fileData = {
+        base64: base64Result,
+        name: file.name,
+        type: file.type,
+        fileType: file.type, // Add fileType for consistency
+        size: file.size,
+        uploadedAt: new Date().toISOString()
+      };
+
+      setUploadedFiles(prev => ({
+        ...prev,
+        [documentType]: fileData
+      }));
+
+      toast({
+        title: "File uploaded successfully",
+        description: `${file.name} has been uploaded. Size: ${(file.size / 1024).toFixed(1)} KB`,
+      });
+      
+      trackEvent('document_uploaded', { 
+        documentType: documentType, 
+        fileName: file.name,
+        fileSize: file.size,
+        loanType: loanType
+      });
+    };
+
+    reader.onerror = (error) => {
+      console.error('Error reading file:', error);
+      toast({
+        title: "Upload Error",
+        description: "Failed to process the file. Please try again.",
+        variant: "destructive"
+      });
+    };
+    
+    reader.readAsDataURL(file);
   };
 
   const triggerFileUpload = (documentType: string) => {
@@ -128,26 +278,45 @@ const Apply = () => {
       name: `${formData.firstName} ${formData.lastName}`,
       email: formData.email,
       phone: formData.phone,
-      type: "Education Loan",
-      amount: formData.loanAmount,
+      type: loanType,
+      amount: formData.loanAmount || "0",
       status: "pending",
       date: new Date().toISOString().split('T')[0],
       timestamp: new Date().toISOString(),
       formData: formData,
       documents: Object.entries(uploadedFiles)
-        .filter(([_, file]) => file !== null)
-        .map(([key, file]) => ({
+        .filter(([_, fileData]) => fileData !== null)
+        .map(([key, fileData]) => ({
           type: key,
-          name: file!.name,
-          size: file!.size,
-          uploadedAt: new Date().toISOString()
+          name: fileData!.name,
+          size: fileData!.size,
+          base64: fileData!.base64,
+          fileType: fileData!.type,
+          uploadedAt: fileData!.uploadedAt
         }))
     };
 
     // Save to localStorage for admin panel
-    const existingApplications = JSON.parse(localStorage.getItem('fundineed_applications') || '[]');
+    let existingApplications = JSON.parse(localStorage.getItem('fundineed_applications_db') || '[]');
+    
+    // Migrate any applications from old key if they exist
+    const oldApplications = JSON.parse(localStorage.getItem('fundineed_applications') || '[]');
+    if (oldApplications.length > 0) {
+      existingApplications = [...existingApplications, ...oldApplications];
+      localStorage.removeItem('fundineed_applications'); // Clean up old key
+    }
+    
     existingApplications.push(application);
-    localStorage.setItem('fundineed_applications', JSON.stringify(existingApplications));
+    localStorage.setItem('fundineed_applications_db', JSON.stringify(existingApplications));
+    
+
+    // Track application completion
+    trackEvent('application_completed', { 
+      loanType: loanType,
+      applicationId: application.id,
+      documentsCount: application.documents.length,
+      amount: application.amount
+    });
 
     toast({
       title: "Application Submitted!",
@@ -167,6 +336,12 @@ const Apply = () => {
       institution: "",
       courseYear: "",
       loanPurpose: "",
+      employmentType: "",
+      companyName: "",
+      workExperience: "",
+      businessName: "",
+      businessType: "",
+      businessAge: "",
       loanAmount: "",
       familyIncome: "",
       coApplicant: "",
@@ -180,7 +355,11 @@ const Apply = () => {
       academic: null,
       admission: null,
       bank: null,
-      fee: null
+      fee: null,
+      employment: null,
+      business: null,
+      financial: null,
+      gst: null
     });
     setCurrentStep(1);
   };
@@ -278,62 +457,190 @@ const Apply = () => {
       case 2:
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-text-primary mb-4">Educational Information</h3>
+            <h3 className="text-xl font-semibold text-text-primary mb-4">{currentConfig?.step2Title || "Educational Information"}</h3>
             
-            <div className="space-y-2">
-              <Label htmlFor="course">Course/Program *</Label>
-              <Input
-                id="course"
-                value={formData.course}
-                onChange={(e) => handleInputChange("course", e.target.value)}
-                placeholder="e.g., B.Tech Computer Science, MBA, MS in Data Science"
-                required
-              />
-            </div>
+            {loanType === "Education Loan" || loanType === "Student Loan" ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="course">Course/Program *</Label>
+                  <Input
+                    id="course"
+                    value={formData.course}
+                    onChange={(e) => handleInputChange("course", e.target.value)}
+                    placeholder="e.g., B.Tech Computer Science, MBA, MS in Data Science"
+                    required
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="institution">Institution/University *</Label>
-              <Input
-                id="institution"
-                value={formData.institution}
-                onChange={(e) => handleInputChange("institution", e.target.value)}
-                placeholder="Enter institution name"
-                required
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="institution">Institution/University *</Label>
+                  <Input
+                    id="institution"
+                    value={formData.institution}
+                    onChange={(e) => handleInputChange("institution", e.target.value)}
+                    placeholder="Enter institution name"
+                    required
+                  />
+                </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="courseYear">Course Year *</Label>
-                <Select value={formData.courseYear} onValueChange={(value) => handleInputChange("courseYear", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select course year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1st-year">1st Year</SelectItem>
-                    <SelectItem value="2nd-year">2nd Year</SelectItem>
-                    <SelectItem value="3rd-year">3rd Year</SelectItem>
-                    <SelectItem value="4th-year">4th Year</SelectItem>
-                    <SelectItem value="postgraduate">Postgraduate</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="loanPurpose">Loan Purpose *</Label>
-                <Select value={formData.loanPurpose} onValueChange={(value) => handleInputChange("loanPurpose", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select loan purpose" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tuition-fees">Tuition Fees</SelectItem>
-                    <SelectItem value="living-expenses">Living Expenses</SelectItem>
-                    <SelectItem value="study-abroad">Study Abroad</SelectItem>
-                    <SelectItem value="equipment">Equipment & Books</SelectItem>
-                    <SelectItem value="comprehensive">Comprehensive (All Expenses)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="courseYear">Course Year *</Label>
+                    <Select value={formData.courseYear} onValueChange={(value) => handleInputChange("courseYear", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select course year" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1st-year">1st Year</SelectItem>
+                        <SelectItem value="2nd-year">2nd Year</SelectItem>
+                        <SelectItem value="3rd-year">3rd Year</SelectItem>
+                        <SelectItem value="4th-year">4th Year</SelectItem>
+                        <SelectItem value="postgraduate">Postgraduate</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="loanPurpose">Loan Purpose *</Label>
+                    <Select value={formData.loanPurpose} onValueChange={(value) => handleInputChange("loanPurpose", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select loan purpose" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="tuition-fees">Tuition Fees</SelectItem>
+                        <SelectItem value="living-expenses">Living Expenses</SelectItem>
+                        <SelectItem value="study-abroad">Study Abroad</SelectItem>
+                        <SelectItem value="equipment">Equipment & Books</SelectItem>
+                        <SelectItem value="comprehensive">Comprehensive (All Expenses)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            ) : loanType === "Personal Loan" ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="employmentType">Employment Type *</Label>
+                  <Select value={formData.employmentType} onValueChange={(value) => handleInputChange("employmentType", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select employment type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="salaried">Salaried</SelectItem>
+                      <SelectItem value="self-employed">Self Employed</SelectItem>
+                      <SelectItem value="business">Business Owner</SelectItem>
+                      <SelectItem value="freelancer">Freelancer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Company/Organization Name *</Label>
+                  <Input
+                    id="companyName"
+                    value={formData.companyName}
+                    onChange={(e) => handleInputChange("companyName", e.target.value)}
+                    placeholder="Enter company name"
+                    required
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="workExperience">Work Experience *</Label>
+                    <Select value={formData.workExperience} onValueChange={(value) => handleInputChange("workExperience", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select experience" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0-1-years">0-1 Years</SelectItem>
+                        <SelectItem value="1-3-years">1-3 Years</SelectItem>
+                        <SelectItem value="3-5-years">3-5 Years</SelectItem>
+                        <SelectItem value="5-10-years">5-10 Years</SelectItem>
+                        <SelectItem value="10-plus-years">10+ Years</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="loanPurpose">Loan Purpose *</Label>
+                    <Select value={formData.loanPurpose} onValueChange={(value) => handleInputChange("loanPurpose", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select loan purpose" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="debt-consolidation">Debt Consolidation</SelectItem>
+                        <SelectItem value="home-renovation">Home Renovation</SelectItem>
+                        <SelectItem value="medical-expenses">Medical Expenses</SelectItem>
+                        <SelectItem value="wedding">Wedding</SelectItem>
+                        <SelectItem value="travel">Travel</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            ) : loanType === "Business Loan" ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="businessName">Business Name *</Label>
+                  <Input
+                    id="businessName"
+                    value={formData.businessName}
+                    onChange={(e) => handleInputChange("businessName", e.target.value)}
+                    placeholder="Enter business name"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="businessType">Business Type *</Label>
+                  <Select value={formData.businessType} onValueChange={(value) => handleInputChange("businessType", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select business type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sole-proprietorship">Sole Proprietorship</SelectItem>
+                      <SelectItem value="partnership">Partnership</SelectItem>
+                      <SelectItem value="private-limited">Private Limited</SelectItem>
+                      <SelectItem value="llp">LLP</SelectItem>
+                      <SelectItem value="public-limited">Public Limited</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="businessAge">Business Age *</Label>
+                    <Select value={formData.businessAge} onValueChange={(value) => handleInputChange("businessAge", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select business age" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0-1-years">0-1 Years</SelectItem>
+                        <SelectItem value="1-3-years">1-3 Years</SelectItem>
+                        <SelectItem value="3-5-years">3-5 Years</SelectItem>
+                        <SelectItem value="5-10-years">5-10 Years</SelectItem>
+                        <SelectItem value="10-plus-years">10+ Years</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="loanPurpose">Loan Purpose *</Label>
+                    <Select value={formData.loanPurpose} onValueChange={(value) => handleInputChange("loanPurpose", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select loan purpose" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="working-capital">Working Capital</SelectItem>
+                        <SelectItem value="equipment-purchase">Equipment Purchase</SelectItem>
+                        <SelectItem value="business-expansion">Business Expansion</SelectItem>
+                        <SelectItem value="inventory">Inventory</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            ) : null}
           </div>
         );
 
@@ -400,16 +707,7 @@ const Apply = () => {
               </p>
               
               <div className="grid md:grid-cols-2 gap-4">
-                {[
-                  { name: "Passport size photographs", key: "passport" },
-                  { name: "Identity proof (Aadhar/Passport)", key: "identity" }, 
-                  { name: "Address proof", key: "address" },
-                  { name: "Income proof of co-applicant", key: "income" },
-                  { name: "Academic records & marksheets", key: "academic" },
-                  { name: "Admission letter", key: "admission" },
-                  { name: "Bank statements (6 months)", key: "bank" },
-                  { name: "Fee structure from institution", key: "fee" }
-                ].map((doc, index) => {
+                {(currentConfig?.documents || []).map((doc, index) => {
                   const isUploaded = uploadedFiles[doc.key] !== null;
                   return (
                     <div key={index} className="flex items-center space-x-3 p-3 border border-border rounded-lg">
@@ -505,7 +803,7 @@ const Apply = () => {
           <Card className="p-8">
             <CardHeader>
               <CardTitle className="text-3xl text-text-primary">
-                Education Loan Application
+                {currentConfig?.title || "Education Loan Application"}
               </CardTitle>
               <p className="text-text-secondary">
                 Step {currentStep} of {steps.length}: {steps[currentStep - 1].title}

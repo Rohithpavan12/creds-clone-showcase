@@ -1,13 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Check, Star, Users, TrendingUp, Shield, ArrowRight } from "lucide-react";
-import heroImage from "@/assets/hero-graduate.jpg";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, CheckCircle, Star, Users, TrendingUp, Shield, Clock, Award, Phone, Mail, MapPin, ChevronRight, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { trackPageView } from "@/lib/analytics";
+import heroImage from "@/assets/hero-graduate.jpg";
 
 
 const Hero = () => {
+  useEffect(() => {
+    trackPageView('Home');
+  }, []);
+
   return (
-    <section className="bg-gradient-hero py-16 md:py-24">
+    <section className="bg-gradient-hero py-20">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
