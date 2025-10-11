@@ -422,9 +422,23 @@ const Apply = () => {
     input.click();
   };
 
-  const validateStep = (step: number) => {
-    let isValid = true;
-    switch (step) {
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      if (currentStep < 3) {
+        setCurrentStep(currentStep + 1);
+        setFormErrors({}); // Clear errors when moving to next step
+      }
+    } else {
+      toast({
+        title: "Validation Error",
+        description: "Please fill all required fields correctly before proceeding.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
@@ -520,9 +534,8 @@ const Apply = () => {
       course: "",
       institution: "",
       courseYear: "",
-      loanPurpose: "",
-      employmentType: "",
       companyName: "",
+      employmentType: "",
       workExperience: "",
       businessName: "",
       businessType: "",
@@ -530,8 +543,10 @@ const Apply = () => {
       loanAmount: "",
       familyIncome: "",
       coApplicant: "",
+      loanPurpose: "",
       acceptTerms: false
     });
+    
     setUploadedFiles({
       passport: null,
       identity: null,
@@ -547,6 +562,7 @@ const Apply = () => {
       gst: null
     });
     setCurrentStep(1);
+    setIsSubmitting(false);
   };
 
   const renderStepContent = () => {
@@ -562,7 +578,7 @@ const Apply = () => {
                 <Input
                   id="firstName"
                   value={formData.firstName}
-                  onChange={handleInputChange}
+                  onChange={(e) => handleInputChange("firstName", e.target.value)}
                   placeholder="Enter your first name"
                   required
                   className={formErrors.firstName ? "border-destructive" : ""}
