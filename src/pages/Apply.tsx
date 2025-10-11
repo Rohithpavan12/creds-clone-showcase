@@ -10,6 +10,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { trackEvent, trackPageView } from "@/lib/analytics";
+import { fundineedDB } from "@/lib/database";
 
 const Apply = () => {
   const [searchParams] = useSearchParams();
@@ -271,16 +272,17 @@ const Apply = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     // Create application with uploaded documents
     const application = {
       id: `#APP-${String(Date.now()).slice(-6)}`,
       name: `${formData.firstName} ${formData.lastName}`,
       email: formData.email,
       phone: formData.phone,
-      type: loanType,
+      type: loanType as 'Education Loan' | 'Personal Loan' | 'Business Loan' | 'Student Loan',
       amount: formData.loanAmount || "0",
-      status: "pending",
+      status: "pending" as 'pending' | 'approved' | 'rejected' | 'review',
       date: new Date().toISOString().split('T')[0],
       timestamp: new Date().toISOString(),
       formData: formData,
@@ -296,20 +298,18 @@ const Apply = () => {
         }))
     };
 
-    // Save to localStorage for admin panel
-    let existingApplications = JSON.parse(localStorage.getItem('fundineed_applications_db') || '[]');
-    
-    // Migrate any applications from old key if they exist
-    const oldApplications = JSON.parse(localStorage.getItem('fundineed_applications') || '[]');
-    if (oldApplications.length > 0) {
-      existingApplications = [...existingApplications, ...oldApplications];
-      localStorage.removeItem('fundineed_applications'); // Clean up old key
+    // Save to IndexedDB database
+    try {
+      await fundineedDB.addApplication(application);
+      console.log('Application saved to database:', application.id);
+    } catch (error) {
+      console.error('Error saving application:', error);
+      // Fallback to localStorage if database fails
+      let existingApplications = JSON.parse(localStorage.getItem('fundineed_applications_db') || '[]');
+      existingApplications.push(application);
+      localStorage.setItem('fundineed_applications_db', JSON.stringify(existingApplications));
     }
     
-    existingApplications.push(application);
-    localStorage.setItem('fundineed_applications_db', JSON.stringify(existingApplications));
-    
-
     // Track application completion
     trackEvent('application_completed', { 
       loanType: loanType,
