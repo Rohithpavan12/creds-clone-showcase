@@ -58,9 +58,9 @@ const HelpCenter = () => {
           </Link>
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">UC</span>
+              <span className="text-white font-bold text-sm">FN</span>
             </div>
-            <span className="text-xl font-bold text-text-primary">UniCreds</span>
+            <span className="text-xl font-bold text-text-primary">Fundineed</span>
           </div>
         </div>
       </header>
@@ -171,7 +171,7 @@ const HelpCenter = () => {
               <CardContent className="text-center space-y-4">
                 <Mail className="w-12 h-12 mx-auto" />
                 <h3 className="text-xl font-semibold">Email Us</h3>
-                <p>support@unicreds.com</p>
+                <p>support@fundineed.com</p>
                 <p className="text-sm opacity-75">24/7 Support</p>
               </CardContent>
             </Card>

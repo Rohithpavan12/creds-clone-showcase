@@ -63,9 +63,9 @@ const AdminLogin = () => {
         
         // Store remember me preference
         if (rememberMe) {
-          localStorage.setItem("unicreds_remember_email", email);
+          localStorage.setItem("fundineed_remember_email", email);
         } else {
-          localStorage.removeItem("unicreds_remember_email");
+          localStorage.removeItem("fundineed_remember_email");
         }
         
         navigate("/admin");
@@ -91,7 +91,7 @@ const AdminLogin = () => {
 
   // Load remembered email on mount
   useEffect(() => {
-    const rememberedEmail = localStorage.getItem("unicreds_remember_email");
+    const rememberedEmail = localStorage.getItem("fundineed_remember_email");
     if (rememberedEmail) {
       setEmail(rememberedEmail);
       setRememberMe(true);

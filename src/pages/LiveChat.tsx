@@ -7,7 +7,7 @@ import { useState } from "react";
 
 const LiveChat = () => {
   const [messages, setMessages] = useState([
-    { id: 1, text: "Hi! I'm your UniCreds loan assistant. How can I help you today?", sender: "bot", time: "10:30 AM" },
+    { id: 1, text: "Hi! I'm your Fundineed loan assistant. How can I help you today?", sender: "bot", time: "10:30 AM" },
     { id: 2, text: "I have questions about education loans.", sender: "user", time: "10:31 AM" },
     { id: 3, text: "I'd be happy to help! What would you like to know about our education loans?", sender: "bot", time: "10:31 AM" }
   ]);
@@ -48,9 +48,9 @@ const LiveChat = () => {
           </Link>
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">UC</span>
+              <span className="text-white font-bold text-sm">FN</span>
             </div>
-            <span className="text-xl font-bold text-text-primary">UniCreds</span>
+            <span className="text-xl font-bold text-text-primary">Fundineed</span>
           </div>
         </div>
       </header>
@@ -136,7 +136,7 @@ const LiveChat = () => {
                   <span className="text-white font-bold">📧</span>
                 </div>
                 <h3 className="text-lg font-semibold">Email Support</h3>
-                <p className="text-text-secondary">Email: support@unicreds.com</p>
+                <p className="text-text-secondary">Email: support@fundineed.com</p>
                 <p className="text-sm text-text-secondary">24/7 Response</p>
               </CardContent>
             </Card>

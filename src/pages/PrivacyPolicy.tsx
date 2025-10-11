@@ -62,9 +62,9 @@ const PrivacyPolicy = () => {
           </Link>
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">UC</span>
+              <span className="text-white font-bold text-sm">FN</span>
             </div>
-            <span className="text-xl font-bold text-text-primary">UniCreds</span>
+            <span className="text-xl font-bold text-text-primary">Fundineed</span>
           </div>
         </div>
       </header>
@@ -98,7 +98,7 @@ const PrivacyPolicy = () => {
                 Our Privacy Commitment
               </h2>
               <p className="text-xl text-text-secondary">
-                At UniCreds, we understand the importance of your privacy and are committed to protecting your personal information.
+                At Fundineed, we understand the importance of your privacy and are committed to protecting your personal information.
               </p>
             </div>
 

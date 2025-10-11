@@ -36,46 +36,45 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: async (email: string, password: string) => {
-        try {
-          const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          });
+        // Demo credentials for Fundineed
+        const demoCredentials = [
+          { email: 'admin@fundineed.com', password: 'Fundineed@2024!', name: 'Admin User', role: 'super_admin' as const },
+          { email: 'manager@fundineed.com', password: 'Manager@2024!', name: 'Manager User', role: 'manager' as const }
+        ];
 
-          if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            return { success: false, message: data.message || 'Login failed' };
-          }
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-          const data = await res.json();
-          const now = new Date().toISOString();
-          const user: User = {
-            id: data.user?.id || 'user',
-            email: data.user?.email || email,
-            name: data.user?.name || 'Admin',
-            role: (data.user?.role || 'super_admin') as User['role'],
-            lastLogin: now,
-            sessionToken: data.token,
-          };
-
-          set({ user, isAuthenticated: true });
-          return { success: true, message: 'Login successful' };
-        } catch (e) {
-          return { success: false, message: 'Network error' };
+        const credential = demoCredentials.find(cred => cred.email === email && cred.password === password);
+        
+        if (!credential) {
+          return { success: false, message: 'Invalid email or password' };
         }
+
+        const now = new Date().toISOString();
+        const user: User = {
+          id: credential.email.split('@')[0],
+          email: credential.email,
+          name: credential.name,
+          role: credential.role,
+          lastLogin: now,
+          sessionToken: `demo_token_${Date.now()}`,
+        };
+
+        set({ user, isAuthenticated: true });
+        return { success: true, message: 'Login successful' };
       },
 
       logout: () => {
         const user = get().user;
         if (user) {
           // Log logout activity
-          const logoutHistory = JSON.parse(localStorage.getItem('unicreds_logout_history') || '[]');
+          const logoutHistory = JSON.parse(localStorage.getItem('fundineed_logout_history') || '[]');
           logoutHistory.push({
             email: user.email,
             timestamp: new Date().toISOString(),
           });
-          localStorage.setItem('unicreds_logout_history', JSON.stringify(logoutHistory));
+          localStorage.setItem('fundineed_logout_history', JSON.stringify(logoutHistory));
         }
 
         set({ user: null, isAuthenticated: false });
@@ -106,7 +105,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'unicreds-auth',
+      name: 'fundineed-auth',
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
     }
   )

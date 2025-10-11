@@ -1,7 +1,7 @@
-# UniCreds Admin Panel - Production Ready
+# Fundineed Admin Panel - Production Ready
 
 ## 🚀 Overview
-A fully functional, production-ready admin panel for UniCreds loan management system with authentication, real-time data management, and comprehensive CRUD operations.
+A fully functional, production-ready admin panel for Fundineed loan management system with authentication, real-time data management, and comprehensive CRUD operations.
 
 ## ✨ Features
 
@@ -34,15 +34,15 @@ A fully functional, production-ready admin panel for UniCreds loan management sy
 ### Production (Change these!)
 ```
 Super Admin:
-Email: admin@unicreds.com
-Password: UniCreds@2024!
+Email: admin@fundineed.com
+Password: Fundineed@2024!
 
 Manager:
-Email: manager@unicreds.com
+Email: manager@fundineed.com
 Password: Manager@2024!
 
 Support:
-Email: support@unicreds.com
+Email: support@fundineed.com
 Password: Support@2024!
 ```
 
@@ -205,11 +205,11 @@ npm run test
 
 For issues or questions:
 - Create an issue on GitHub
-- Contact: admin@unicreds.com
+- Contact: admin@fundineed.com
 
 ## 📄 License
 
-Copyright © 2024 UniCreds. All rights reserved.
+Copyright © 2024 Fundineed. All rights reserved.
 
 ---
 

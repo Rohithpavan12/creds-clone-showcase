@@ -258,7 +258,7 @@ const Admin = () => {
         <h2 className="text-2xl font-bold text-text-primary">Loan Applications</h2>
         <div className="flex space-x-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
             <Input
               placeholder="Search applications..."
               value={searchQuery}
@@ -295,30 +295,37 @@ const Admin = () => {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-secondary border-b">
                 <tr>
-                  <th className="text-left p-4 font-semibold">Application ID</th>
-                  <th className="text-left p-4 font-semibold">Applicant</th>
-                  <th className="text-left p-4 font-semibold">Type</th>
-                  <th className="text-left p-4 font-semibold">Amount</th>
-                  <th className="text-left p-4 font-semibold">Status</th>
-                  <th className="text-left p-4 font-semibold">Date</th>
-                  <th className="text-left p-4 font-semibold">Actions</th>
+                  <th className="text-left p-4 font-semibold text-text-primary">Application ID</th>
+                  <th className="text-left p-4 font-semibold text-text-primary">Applicant</th>
+                  <th className="text-left p-4 font-semibold text-text-primary">Type</th>
+                  <th className="text-left p-4 font-semibold text-text-primary">Amount</th>
+                  <th className="text-left p-4 font-semibold text-text-primary">Status</th>
+                  <th className="text-left p-4 font-semibold text-text-primary">Date</th>
+                  <th className="text-left p-4 font-semibold text-text-primary">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredApplications.map((app: any, index: number) => (
-                  <tr key={index} className="border-b hover:bg-gray-50">
-                    <td className="p-4">{app.id}</td>
-                    <td className="p-4 font-medium">{app.name}</td>
-                    <td className="p-4">{app.type}</td>
-                    <td className="p-4">₹{app.amount.toLocaleString()}</td>
+                  <tr key={index} className="border-b hover:bg-muted">
+                    <td className="p-4 text-text-primary">{app.id}</td>
+                    <td className="p-4 font-medium text-text-primary">
+                      <div className="flex items-center space-x-2">
+                        <span>{app.name}</span>
+                        {app.documents && app.documents.length > 0 && (
+                          <div className="w-2 h-2 bg-success rounded-full" title={`${app.documents.length} documents uploaded`}></div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4 text-text-secondary">{app.type}</td>
+                    <td className="p-4 text-text-primary">₹{app.amount?.toLocaleString() || 'N/A'}</td>
                     <td className="p-4">
                       <Badge className={getStatusColor(app.status)}>
                         {app.status}
                       </Badge>
                     </td>
-                    <td className="p-4">{app.date}</td>
+                    <td className="p-4 text-text-secondary">{app.date}</td>
                     <td className="p-4">
                       <div className="flex space-x-2">
                         <Button 
@@ -326,8 +333,8 @@ const Admin = () => {
                           variant="outline"
                           onClick={() => handleEditApplication(app)}
                         >
-                          <Edit className="w-3 h-3 mr-1" />
-                          Edit
+                          <FileText className="w-3 h-3 mr-1" />
+                          View Details
                         </Button>
                         <Button 
                           size="sm" 
@@ -529,9 +536,9 @@ const Admin = () => {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Application</DialogTitle>
+            <DialogTitle>Application Details</DialogTitle>
             <DialogDescription>
-              Update the application details below
+              View and update the application details and uploaded documents
             </DialogDescription>
           </DialogHeader>
           {editingApp && (
@@ -613,6 +620,31 @@ const Admin = () => {
                   rows={3}
                 />
               </div>
+              
+              {/* Documents Section */}
+              {editingApp && editingApp.documents && editingApp.documents.length > 0 && (
+                <div className="mt-6">
+                  <Label className="text-base font-semibold">Uploaded Documents</Label>
+                  <div className="mt-3 space-y-3">
+                    {editingApp.documents.map((doc: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/50">
+                        <div className="flex items-center space-x-3">
+                          <FileText className="w-5 h-5 text-primary" />
+                          <div>
+                            <p className="text-sm font-medium text-text-primary">{doc.name}</p>
+                            <p className="text-xs text-text-secondary">
+                              {doc.type.charAt(0).toUpperCase() + doc.type.slice(1)} • {(doc.size / 1024).toFixed(1)} KB
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-xs text-text-secondary">
+                          {new Date(doc.uploadedAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
@@ -627,10 +659,10 @@ const Admin = () => {
       </Dialog>
 
       {/* Header */}
-      <header className="bg-white border-b border-border sticky top-0 z-50">
+      <header className="bg-background border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-2 text-gray-600 hover:text-gray-900">
+            <Link to="/" className="flex items-center space-x-2 text-text-secondary hover:text-primary">
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Home</span>
             </Link>
@@ -644,19 +676,19 @@ const Admin = () => {
           
           <div className="flex items-center space-x-4">
             {/* Notifications */}
-            <button className="relative p-2 text-gray-600 hover:text-gray-900">
+            <button className="relative p-2 text-text-secondary hover:text-primary">
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
             </button>
             
             {/* User Menu */}
             <div className="flex items-center space-x-3">
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.name || 'Admin'}</p>
-                <p className="text-xs text-gray-500">{user?.role || 'Administrator'}</p>
+                <p className="text-sm font-medium text-text-primary">{user?.name || 'Admin'}</p>
+                <p className="text-xs text-text-secondary">{user?.role || 'Administrator'}</p>
               </div>
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-gray-600" />
+              <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-text-secondary" />
               </div>
               <Button
                 variant="ghost"
@@ -682,8 +714,8 @@ const Admin = () => {
                     onClick={() => setActiveTab("dashboard")}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                       activeTab === "dashboard"
-                        ? "bg-primary text-white"
-                        : "hover:bg-gray-100"
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted text-text-primary"
                     }`}
                   >
                     <div className="flex items-center space-x-3">
@@ -696,8 +728,8 @@ const Admin = () => {
                     onClick={() => setActiveTab("applications")}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                       activeTab === "applications"
-                        ? "bg-primary text-white"
-                        : "hover:bg-gray-100"
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted text-text-primary"
                     }`}
                   >
                     <div className="flex items-center space-x-3">
@@ -710,8 +742,8 @@ const Admin = () => {
                     onClick={() => setActiveTab("users")}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                       activeTab === "users"
-                        ? "bg-primary text-white"
-                        : "hover:bg-gray-100"
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted text-text-primary"
                     }`}
                   >
                     <div className="flex items-center space-x-3">
@@ -724,8 +756,8 @@ const Admin = () => {
                     onClick={() => setActiveTab("reports")}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                       activeTab === "reports"
-                        ? "bg-primary text-white"
-                        : "hover:bg-gray-100"
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted text-text-primary"
                     }`}
                   >
                     <div className="flex items-center space-x-3">
@@ -739,8 +771,8 @@ const Admin = () => {
                     onClick={() => setActiveTab("settings")}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                       activeTab === "settings"
-                        ? "bg-primary text-white"
-                        : "hover:bg-gray-100"
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted text-text-primary"
                     }`}
                   >
                     <div className="flex items-center space-x-3">

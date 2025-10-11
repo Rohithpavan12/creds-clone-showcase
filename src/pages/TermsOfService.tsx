@@ -59,9 +59,9 @@ const TermsOfService = () => {
           </Link>
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">UC</span>
+              <span className="text-white font-bold text-sm">FN</span>
             </div>
-            <span className="text-xl font-bold text-text-primary">UniCreds</span>
+            <span className="text-xl font-bold text-text-primary">Fundineed</span>
           </div>
         </div>
       </header>
@@ -141,7 +141,7 @@ const TermsOfService = () => {
                     • These terms are subject to change without prior notice. Users are advised to check regularly for updates.
                   </p>
                   <p className="text-text-secondary">
-                    • UniCreds reserves the right to modify or discontinue services at any time.
+                    • Fundineed reserves the right to modify or discontinue services at any time.
                   </p>
                   <p className="text-text-secondary">
                     • All disputes shall be subject to the jurisdiction of Indian courts.

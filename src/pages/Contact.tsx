@@ -54,14 +54,14 @@ const Contact = () => {
     {
       title: "Email Support", 
       description: "Send us your queries",
-      value: "support@unicreds.com",
+      value: "support@fundineed.com",
       icon: Mail,
-      action: "mailto:support@unicreds.com"
+      action: "mailto:support@fundineed.com"
     },
     {
       title: "Office Address",
       description: "Visit our main office", 
-      value: "123 Education Hub, Mumbai 400001",
+      value: "Plot No. 123, HITEC City, Hyderabad 500081",
       icon: MapPin,
       action: ""
     },

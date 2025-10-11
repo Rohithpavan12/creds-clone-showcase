@@ -21,8 +21,8 @@ export default async function handler(req: any, res: any) {
   if (!JWT_SECRET) return res.status(500).json({ message: 'Missing JWT_SECRET' });
 
   // Admin credentials from env
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@unicreds.com';
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'UniCreds@2024!';
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@fundineed.com';
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Fundineed@2024!';
   const ADMIN_NAME = process.env.ADMIN_NAME || 'Super Admin';
   const ADMIN_ROLE = process.env.ADMIN_ROLE || 'super_admin';
 

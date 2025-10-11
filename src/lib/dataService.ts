@@ -99,7 +99,7 @@ export const useDataStore = create<DataState>()(
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 300));
         
-        const storedApps = localStorage.getItem('unicreds_applications_db');
+        const storedApps = localStorage.getItem('fundineed_applications_db');
         const applications = storedApps ? JSON.parse(storedApps) : [];
         
         set({ applications, isLoading: false });
@@ -116,7 +116,7 @@ export const useDataStore = create<DataState>()(
         const { applications } = get();
         const updated = [...applications, newApp];
         
-        localStorage.setItem('unicreds_applications_db', JSON.stringify(updated));
+        localStorage.setItem('fundineed_applications_db', JSON.stringify(updated));
         set({ applications: updated });
         get().updateAnalytics();
         
@@ -129,7 +129,7 @@ export const useDataStore = create<DataState>()(
           app.id === id ? { ...app, ...updates } : app
         );
         
-        localStorage.setItem('unicreds_applications_db', JSON.stringify(updated));
+        localStorage.setItem('fundineed_applications_db', JSON.stringify(updated));
         set({ applications: updated });
         get().updateAnalytics();
       },
@@ -138,7 +138,7 @@ export const useDataStore = create<DataState>()(
         const { applications } = get();
         const updated = applications.filter(app => app.id !== id);
         
-        localStorage.setItem('unicreds_applications_db', JSON.stringify(updated));
+        localStorage.setItem('fundineed_applications_db', JSON.stringify(updated));
         set({ applications: updated });
         get().updateAnalytics();
       },
@@ -149,7 +149,7 @@ export const useDataStore = create<DataState>()(
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 300));
         
-        const storedUsers = localStorage.getItem('unicreds_users_db');
+        const storedUsers = localStorage.getItem('fundineed_users_db');
         const users = storedUsers ? JSON.parse(storedUsers) : [];
         
         set({ users, isLoading: false });
@@ -164,7 +164,7 @@ export const useDataStore = create<DataState>()(
         const { users } = get();
         const updated = [...users, newUser];
         
-        localStorage.setItem('unicreds_users_db', JSON.stringify(updated));
+        localStorage.setItem('fundineed_users_db', JSON.stringify(updated));
         set({ users: updated });
         
         return newUser;
@@ -176,7 +176,7 @@ export const useDataStore = create<DataState>()(
           user.id === id ? { ...user, ...updates } : user
         );
         
-        localStorage.setItem('unicreds_users_db', JSON.stringify(updated));
+        localStorage.setItem('fundineed_users_db', JSON.stringify(updated));
         set({ users: updated });
       },
 
@@ -184,7 +184,7 @@ export const useDataStore = create<DataState>()(
         const { users } = get();
         const updated = users.filter(user => user.id !== id);
         
-        localStorage.setItem('unicreds_users_db', JSON.stringify(updated));
+        localStorage.setItem('fundineed_users_db', JSON.stringify(updated));
         set({ users: updated });
       },
 
@@ -245,7 +245,7 @@ export const useDataStore = create<DataState>()(
       },
     }),
     {
-      name: 'unicreds-data',
+      name: 'fundineed-data',
       partialize: (state) => ({
         applications: state.applications,
         users: state.users,

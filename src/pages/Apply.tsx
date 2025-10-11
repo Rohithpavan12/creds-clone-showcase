@@ -37,6 +37,17 @@ const Apply = () => {
     acceptTerms: false
   });
 
+  const [uploadedFiles, setUploadedFiles] = useState<{[key: string]: File | null}>({
+    passport: null,
+    identity: null,
+    address: null,
+    income: null,
+    academic: null,
+    admission: null,
+    bank: null,
+    fee: null
+  });
+
   const steps = [
     { id: 1, title: "Personal Details", icon: User },
     { id: 2, title: "Education Info", icon: GraduationCap },
@@ -49,6 +60,53 @@ const Apply = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleFileUpload = (documentType: string, file: File) => {
+    // Validate file type and size
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload PDF, JPG, or PNG files only.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (file.size > maxSize) {
+      toast({
+        title: "File too large",
+        description: "Please upload files smaller than 5MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploadedFiles(prev => ({
+      ...prev,
+      [documentType]: file
+    }));
+
+    toast({
+      title: "File uploaded successfully",
+      description: `${file.name} has been uploaded.`,
+    });
+  };
+
+  const triggerFileUpload = (documentType: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.jpg,.jpeg,.png';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        handleFileUpload(documentType, file);
+      }
+    };
+    input.click();
   };
 
   const handleNext = () => {
@@ -64,6 +122,33 @@ const Apply = () => {
   };
 
   const handleSubmit = () => {
+    // Create application with uploaded documents
+    const application = {
+      id: `#APP-${String(Date.now()).slice(-6)}`,
+      name: `${formData.firstName} ${formData.lastName}`,
+      email: formData.email,
+      phone: formData.phone,
+      type: "Education Loan",
+      amount: formData.loanAmount,
+      status: "pending",
+      date: new Date().toISOString().split('T')[0],
+      timestamp: new Date().toISOString(),
+      formData: formData,
+      documents: Object.entries(uploadedFiles)
+        .filter(([_, file]) => file !== null)
+        .map(([key, file]) => ({
+          type: key,
+          name: file!.name,
+          size: file!.size,
+          uploadedAt: new Date().toISOString()
+        }))
+    };
+
+    // Save to localStorage for admin panel
+    const existingApplications = JSON.parse(localStorage.getItem('fundineed_applications') || '[]');
+    existingApplications.push(application);
+    localStorage.setItem('fundineed_applications', JSON.stringify(existingApplications));
+
     toast({
       title: "Application Submitted!",
       description: "Your loan application has been submitted successfully. We'll review it and get back to you within 48 hours.",
@@ -86,6 +171,16 @@ const Apply = () => {
       familyIncome: "",
       coApplicant: "",
       acceptTerms: false
+    });
+    setUploadedFiles({
+      passport: null,
+      identity: null,
+      address: null,
+      income: null,
+      academic: null,
+      admission: null,
+      bank: null,
+      fee: null
     });
     setCurrentStep(1);
   };
@@ -306,24 +401,40 @@ const Apply = () => {
               
               <div className="grid md:grid-cols-2 gap-4">
                 {[
-                  "Passport size photographs",
-                  "Identity proof (Aadhar/Passport)", 
-                  "Address proof",
-                  "Income proof of co-applicant",
-                  "Academic records & marksheets",
-                  "Admission letter",
-                  "Bank statements (6 months)",
-                  "Fee structure from institution"
-                ].map((doc, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 border border-border rounded-lg">
-                    <FileText className="w-5 h-5 text-primary" />
-                    <span className="text-text-secondary flex-1">{doc}</span>
-                    <Button variant="outline" size="sm">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload
-                    </Button>
-                  </div>
-                ))}
+                  { name: "Passport size photographs", key: "passport" },
+                  { name: "Identity proof (Aadhar/Passport)", key: "identity" }, 
+                  { name: "Address proof", key: "address" },
+                  { name: "Income proof of co-applicant", key: "income" },
+                  { name: "Academic records & marksheets", key: "academic" },
+                  { name: "Admission letter", key: "admission" },
+                  { name: "Bank statements (6 months)", key: "bank" },
+                  { name: "Fee structure from institution", key: "fee" }
+                ].map((doc, index) => {
+                  const isUploaded = uploadedFiles[doc.key] !== null;
+                  return (
+                    <div key={index} className="flex items-center space-x-3 p-3 border border-border rounded-lg">
+                      <FileText className={`w-5 h-5 ${isUploaded ? 'text-success' : 'text-primary'}`} />
+                      <span className="text-text-secondary flex-1">{doc.name}</span>
+                      <Button 
+                        variant={isUploaded ? "default" : "outline"} 
+                        size="sm"
+                        onClick={() => triggerFileUpload(doc.key)}
+                      >
+                        {isUploaded ? (
+                          <>
+                            <Check className="w-4 h-4 mr-2" />
+                            Uploaded
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Upload
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="mt-6 p-4 border border-border rounded-lg">

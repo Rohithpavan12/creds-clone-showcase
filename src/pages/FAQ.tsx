@@ -37,7 +37,7 @@ const FAQ = () => {
       questions: [
         {
           question: "How long does it take to process an education loan?",
-          answer: "With UniCreds, most education loans are processed within 48-72 hours of document submission. The exact time depends on the completeness of documents and lender verification processes."
+          answer: "With Fundineed, most education loans are processed within 48-72 hours of document submission. The exact time depends on the completeness of documents and lender verification processes."
         },
         {
           question: "What documents are required for loan application?",
