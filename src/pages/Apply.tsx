@@ -26,18 +26,17 @@ const Apply = () => {
     aadhar: "",
     pan: "",
     
-    // Educational Details
+    // Education Information (for Education Loan)
     course: "",
     institution: "",
     courseYear: "",
-    loanPurpose: "",
     
-    // Personal Loan Fields
-    employmentType: "",
+    // Employment Information (for Personal Loan)
     companyName: "",
+    employmentType: "",
     workExperience: "",
     
-    // Business Loan Fields
+    // Business Information (for Business Loan)
     businessName: "",
     businessType: "",
     businessAge: "",
@@ -46,10 +45,173 @@ const Apply = () => {
     loanAmount: "",
     familyIncome: "",
     coApplicant: "",
+    loanPurpose: "",
     
     // Documents
     acceptTerms: false
   });
+  const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Validation functions
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string): boolean => {
+    const phoneRegex = /^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+  };
+
+  const validateAadhar = (aadhar: string): boolean => {
+    const aadharRegex = /^\d{4}\s?\d{4}\s?\d{4}$/;
+    return aadharRegex.test(aadhar);
+  };
+
+  const validatePAN = (pan: string): boolean => {
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    return panRegex.test(pan.toUpperCase());
+  };
+
+  const validateAge = (dateOfBirth: string): boolean => {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      return age - 1 >= 18;
+    }
+    return age >= 18;
+  };
+
+  const getRequiredDocuments = () => {
+    const baseDocuments = [
+      { type: 'passport', name: 'Passport/Photo ID' },
+      { type: 'identity', name: 'Aadhar Card' },
+      { type: 'address', name: 'Address Proof' },
+      { type: 'income', name: 'Income Proof' }
+    ];
+
+    if (loanType === "Education Loan") {
+      baseDocuments.push({ type: 'academic', name: 'Academic Documents' });
+    }
+
+    return baseDocuments;
+  };
+
+  const validateStep = (step: number): boolean => {
+    const errors: {[key: string]: string} = {};
+
+    if (step === 1) {
+      // Personal Information Validation
+      if (!formData.firstName.trim()) {
+        errors.firstName = "First name is required";
+      } else if (formData.firstName.length < 2) {
+        errors.firstName = "First name must be at least 2 characters";
+      }
+
+      if (!formData.lastName.trim()) {
+        errors.lastName = "Last name is required";
+      } else if (formData.lastName.length < 2) {
+        errors.lastName = "Last name must be at least 2 characters";
+      }
+
+      if (!formData.email.trim()) {
+        errors.email = "Email is required";
+      } else if (!validateEmail(formData.email)) {
+        errors.email = "Please enter a valid email address";
+      }
+
+      if (!formData.phone.trim()) {
+        errors.phone = "Phone number is required";
+      } else if (!validatePhone(formData.phone)) {
+        errors.phone = "Please enter a valid Indian phone number";
+      }
+
+      if (!formData.dateOfBirth) {
+        errors.dateOfBirth = "Date of birth is required";
+      } else if (!validateAge(formData.dateOfBirth)) {
+        errors.dateOfBirth = "You must be at least 18 years old";
+      }
+
+      if (!formData.aadhar.trim()) {
+        errors.aadhar = "Aadhar number is required";
+      } else if (!validateAadhar(formData.aadhar)) {
+        errors.aadhar = "Please enter a valid Aadhar number (12 digits)";
+      }
+
+      if (!formData.pan.trim()) {
+        errors.pan = "PAN number is required";
+      } else if (!validatePAN(formData.pan)) {
+        errors.pan = "Please enter a valid PAN number (e.g., ABCDE1234F)";
+      }
+    }
+
+    if (step === 2) {
+      // Loan-specific validation
+      if (loanType === "Education Loan") {
+        if (!formData.course.trim()) {
+          errors.course = "Course name is required";
+        }
+        if (!formData.institution.trim()) {
+          errors.institution = "Institution name is required";
+        }
+        if (!formData.courseYear) {
+          errors.courseYear = "Course year is required";
+        }
+      } else if (loanType === "Personal Loan") {
+        if (!formData.companyName.trim()) {
+          errors.companyName = "Company name is required";
+        }
+        if (!formData.employmentType) {
+          errors.employmentType = "Employment type is required";
+        }
+        if (!formData.workExperience) {
+          errors.workExperience = "Work experience is required";
+        }
+      } else if (loanType === "Business Loan") {
+        if (!formData.businessName.trim()) {
+          errors.businessName = "Business name is required";
+        }
+        if (!formData.businessType) {
+          errors.businessType = "Business type is required";
+        }
+        if (!formData.businessAge) {
+          errors.businessAge = "Business age is required";
+        }
+      }
+
+      // Financial Information
+      if (!formData.loanAmount) {
+        errors.loanAmount = "Loan amount is required";
+      }
+      if (!formData.familyIncome) {
+        errors.familyIncome = "Family income is required";
+      }
+      if (!formData.loanPurpose.trim()) {
+        errors.loanPurpose = "Loan purpose is required";
+      }
+    }
+
+    if (step === 3) {
+      // Document validation
+      const requiredDocs = getRequiredDocuments();
+      const missingDocs = requiredDocs.filter(doc => !uploadedFiles[doc.type]);
+      
+      if (missingDocs.length > 0) {
+        errors.documents = `Please upload all required documents: ${missingDocs.map(doc => doc.name).join(', ')}`;
+      }
+
+      if (!formData.acceptTerms) {
+        errors.acceptTerms = "You must accept the terms and conditions";
+      }
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   interface FileData {
     base64: string;
@@ -260,20 +422,43 @@ const Apply = () => {
     input.click();
   };
 
-  const handleNext = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentStep > 1) {
+  const validateStep = (step: number) => {
+    let isValid = true;
+    switch (step) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
+    // Basic validation before submission
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || 
+        !formData.dateOfBirth || !formData.aadhar || !formData.pan || !formData.loanAmount || 
+        !formData.familyIncome || !formData.acceptTerms) {
+      setIsSubmitting(false);
+      toast({
+        title: "Validation Error",
+        description: "Please fill all required fields and accept terms and conditions.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if required documents are uploaded
+    const requiredDocs = ['passport', 'identity', 'address', 'income'];
+    const missingDocs = requiredDocs.filter(doc => !uploadedFiles[doc]);
+    if (missingDocs.length > 0) {
+      setIsSubmitting(false);
+      toast({
+        title: "Missing Documents",
+        description: "Please upload all required documents before submitting.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Create application with uploaded documents
     const application = {
       id: `#APP-${String(Date.now()).slice(-6)}`,
@@ -377,10 +562,14 @@ const Apply = () => {
                 <Input
                   id="firstName"
                   value={formData.firstName}
-                  onChange={(e) => handleInputChange("firstName", e.target.value)}
-                  placeholder="Enter first name"
+                  onChange={handleInputChange}
+                  placeholder="Enter your first name"
                   required
+                  className={formErrors.firstName ? "border-destructive" : ""}
                 />
+                {formErrors.firstName && (
+                  <p className="text-sm text-destructive mt-1">{formErrors.firstName}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name *</Label>
