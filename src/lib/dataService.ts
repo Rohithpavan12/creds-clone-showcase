@@ -23,6 +23,7 @@ export interface Application {
   employmentStatus?: string;
   purpose?: string;
 }
+
 export interface User {
   id: string;
   name: string;
@@ -56,7 +57,12 @@ export interface Analytics {
 interface DataState {
   applications: Application[];
   users: User[];
-{{ ... }}
+  analytics: Analytics;
+  isLoading: boolean;
+  
+  // Application methods
+  fetchApplications: () => Promise<void>;
+  addApplication: (application: Omit<Application, 'id' | 'timestamp'>) => Promise<Application>;
   updateApplication: (id: string, updates: Partial<Application>) => Promise<void>;
   deleteApplication: (id: string) => Promise<void>;
   
@@ -76,7 +82,11 @@ export const useDataStore = create<DataState>()(
     (set, get) => ({
       applications: [],
       users: [],
-{{ ... }}
+      analytics: {
+        totalApplications: 0,
+        approvedLoans: 0,
+        pendingReview: 0,
+        rejectedLoans: 0,
         totalDisbursed: 0,
         averageAmount: 0,
         approvalRate: 0,
@@ -90,11 +100,15 @@ export const useDataStore = create<DataState>()(
         try {
           set({ isLoading: true });
           
-          // Simulate API call delay
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          // Get applications from IndexedDB
-          const applications = await fundineedDB.getAllApplications();
+          // Try to get from IndexedDB first, fallback to localStorage
+          let applications: Application[] = [];
+          try {
+            applications = await fundineedDB.getAllApplications();
+          } catch (error) {
+            console.log('IndexedDB not available, using localStorage');
+            const storedApplications = localStorage.getItem('fundineed_applications_db');
+            applications = storedApplications ? JSON.parse(storedApplications) : [];
+          }
           
           set({ applications, isLoading: false });
           get().updateAnalytics();
@@ -112,17 +126,21 @@ export const useDataStore = create<DataState>()(
         };
         
         try {
+          // Try IndexedDB first
           await fundineedDB.addApplication(newApp);
-          const { applications } = get();
-          const updated = [...applications, newApp];
-          set({ applications: updated });
-          get().updateAnalytics();
-          
-          return newApp;
         } catch (error) {
-          console.error('Error adding application:', error);
-          throw error;
+          // Fallback to localStorage
+          const existing = JSON.parse(localStorage.getItem('fundineed_applications_db') || '[]');
+          existing.push(newApp);
+          localStorage.setItem('fundineed_applications_db', JSON.stringify(existing));
         }
+        
+        const { applications } = get();
+        const updated = [...applications, newApp];
+        set({ applications: updated });
+        get().updateAnalytics();
+        
+        return newApp;
       },
 
       updateApplication: async (id, updates) => {
@@ -132,7 +150,17 @@ export const useDataStore = create<DataState>()(
           if (!appToUpdate) throw new Error('Application not found');
           
           const updatedApp = { ...appToUpdate, ...updates };
-          await fundineedDB.updateApplication(updatedApp);
+          
+          try {
+            await fundineedDB.updateApplication(updatedApp);
+          } catch (error) {
+            // Fallback to localStorage
+            const existing = JSON.parse(localStorage.getItem('fundineed_applications_db') || '[]');
+            const updatedExisting = existing.map((app: Application) => 
+              app.id === id ? updatedApp : app
+            );
+            localStorage.setItem('fundineed_applications_db', JSON.stringify(updatedExisting));
+          }
           
           const updated = applications.map(app => 
             app.id === id ? updatedApp : app
@@ -147,7 +175,15 @@ export const useDataStore = create<DataState>()(
 
       deleteApplication: async (id) => {
         try {
-          await fundineedDB.deleteApplication(id);
+          try {
+            await fundineedDB.deleteApplication(id);
+          } catch (error) {
+            // Fallback to localStorage
+            const existing = JSON.parse(localStorage.getItem('fundineed_applications_db') || '[]');
+            const filtered = existing.filter((app: Application) => app.id !== id);
+            localStorage.setItem('fundineed_applications_db', JSON.stringify(filtered));
+          }
+          
           const { applications } = get();
           const updated = applications.filter(app => app.id !== id);
           set({ applications: updated });
@@ -160,9 +196,6 @@ export const useDataStore = create<DataState>()(
 
       fetchUsers: async () => {
         set({ isLoading: true });
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 300));
         
         // Demo users for now
         const demoUsers: User[] = [
@@ -269,11 +302,6 @@ export const useDataStore = create<DataState>()(
     }),
     {
       name: 'fundineed-data-store',
-      partialize: (state) => ({
-        applications: state.applications,
-        users: state.users,
-        analytics: state.analytics,
-      }),
     }
   )
 );
