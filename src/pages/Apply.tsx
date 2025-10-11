@@ -105,7 +105,7 @@ const Apply = () => {
     const errors: {[key: string]: string} = {};
 
     if (step === 1) {
-      // Personal Information Validation
+      // Only validate required fields: name, email, phone
       if (!formData.firstName.trim()) {
         errors.firstName = "First name is required";
       } else if (formData.firstName.length < 2) {
@@ -129,86 +129,9 @@ const Apply = () => {
       } else if (!validatePhone(formData.phone)) {
         errors.phone = "Please enter a valid Indian phone number";
       }
-
-      if (!formData.dateOfBirth) {
-        errors.dateOfBirth = "Date of birth is required";
-      } else if (!validateAge(formData.dateOfBirth)) {
-        errors.dateOfBirth = "You must be at least 18 years old";
-      }
-
-      if (!formData.aadhar.trim()) {
-        errors.aadhar = "Aadhar number is required";
-      } else if (!validateAadhar(formData.aadhar)) {
-        errors.aadhar = "Please enter a valid Aadhar number (12 digits)";
-      }
-
-      if (!formData.pan.trim()) {
-        errors.pan = "PAN number is required";
-      } else if (!validatePAN(formData.pan)) {
-        errors.pan = "Please enter a valid PAN number (e.g., ABCDE1234F)";
-      }
     }
 
-    if (step === 2) {
-      // Loan-specific validation
-      if (loanType === "Education Loan") {
-        if (!formData.course.trim()) {
-          errors.course = "Course name is required";
-        }
-        if (!formData.institution.trim()) {
-          errors.institution = "Institution name is required";
-        }
-        if (!formData.courseYear) {
-          errors.courseYear = "Course year is required";
-        }
-      } else if (loanType === "Personal Loan") {
-        if (!formData.companyName.trim()) {
-          errors.companyName = "Company name is required";
-        }
-        if (!formData.employmentType) {
-          errors.employmentType = "Employment type is required";
-        }
-        if (!formData.workExperience) {
-          errors.workExperience = "Work experience is required";
-        }
-      } else if (loanType === "Business Loan") {
-        if (!formData.businessName.trim()) {
-          errors.businessName = "Business name is required";
-        }
-        if (!formData.businessType) {
-          errors.businessType = "Business type is required";
-        }
-        if (!formData.businessAge) {
-          errors.businessAge = "Business age is required";
-        }
-      }
-
-      // Financial Information
-      if (!formData.loanAmount) {
-        errors.loanAmount = "Loan amount is required";
-      }
-      if (!formData.familyIncome) {
-        errors.familyIncome = "Family income is required";
-      }
-      if (!formData.loanPurpose.trim()) {
-        errors.loanPurpose = "Loan purpose is required";
-      }
-    }
-
-    if (step === 3) {
-      // Document validation
-      const requiredDocs = getRequiredDocuments();
-      const missingDocs = requiredDocs.filter(doc => !uploadedFiles[doc.type]);
-      
-      if (missingDocs.length > 0) {
-        errors.documents = `Please upload all required documents: ${missingDocs.map(doc => doc.name).join(', ')}`;
-      }
-
-      if (!formData.acceptTerms) {
-        errors.acceptTerms = "You must accept the terms and conditions";
-      }
-    }
-
+    // Steps 2 and 3 are optional - allow navigation without validation
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -447,27 +370,34 @@ const Apply = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Basic validation before submission
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || 
-        !formData.dateOfBirth || !formData.aadhar || !formData.pan || !formData.loanAmount || 
-        !formData.familyIncome || !formData.acceptTerms) {
+    // Simplified validation - only name, email, phone required
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
       setIsSubmitting(false);
       toast({
         title: "Validation Error",
-        description: "Please fill all required fields and accept terms and conditions.",
+        description: "Please fill in your name, email address, and mobile number.",
         variant: "destructive"
       });
       return;
     }
 
-    // Check if required documents are uploaded
-    const requiredDocs = ['passport', 'identity', 'address', 'income'];
-    const missingDocs = requiredDocs.filter(doc => !uploadedFiles[doc]);
-    if (missingDocs.length > 0) {
+    // Validate email format
+    if (!validateEmail(formData.email)) {
       setIsSubmitting(false);
       toast({
-        title: "Missing Documents",
-        description: "Please upload all required documents before submitting.",
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate phone format
+    if (!validatePhone(formData.phone)) {
+      setIsSubmitting(false);
+      toast({
+        title: "Invalid Phone Number",
+        description: "Please enter a valid Indian mobile number.",
         variant: "destructive"
       });
       return;
@@ -626,33 +556,30 @@ const Apply = () => {
 
             <div className="grid md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                <Label htmlFor="dateOfBirth">Date of Birth</Label>
                 <Input
                   id="dateOfBirth"
                   type="date"
                   value={formData.dateOfBirth}
                   onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
-                  required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="aadhar">Aadhar Number *</Label>
+                <Label htmlFor="aadhar">Aadhar Number</Label>
                 <Input
                   id="aadhar"
                   value={formData.aadhar}
                   onChange={(e) => handleInputChange("aadhar", e.target.value)}
                   placeholder="1234 5678 9012"
-                  required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pan">PAN Number *</Label>
+                <Label htmlFor="pan">PAN Number</Label>
                 <Input
                   id="pan"
                   value={formData.pan}
                   onChange={(e) => handleInputChange("pan", e.target.value)}
                   placeholder="ABCDE1234F"
-                  required
                 />
               </div>
             </div>

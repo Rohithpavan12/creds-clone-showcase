@@ -47,27 +47,24 @@ const Admin = () => {
     kycStatus: "pending" as const,
     lastActive: new Date().toISOString(),
   });
-
   // Load data on mount
   useEffect(() => {
-    fetchApplications();
-    fetchUsers();
-    updateAnalytics();
-    
     // Initialize analytics session
     useAnalyticsStore.getState().initializeSession();
-  }, []);
-
-  // Auto-refresh data every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchApplications();
-      fetchUsers();
-      updateAnalytics();
-    }, 30000);
+    
+    // Fetch data when component mounts - force refresh from database
+    const loadData = async () => {
+      await fetchApplications();
+      await fetchUsers();
+    };
+    
+    loadData();
+    
+    // Set up interval to refresh data every 30 seconds for production
+    const interval = setInterval(loadData, 30000);
+    
     return () => clearInterval(interval);
-  }, []);
-
+  }, [fetchApplications, fetchUsers]);
   const handleLogout = () => {
     logout();
     toast({
