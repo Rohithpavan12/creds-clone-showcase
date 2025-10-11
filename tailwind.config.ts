@@ -13,6 +13,14 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        'logo': ['Coiny', 'cursive'],
+        'logo-alt': ['Montserrat', 'sans-serif'],
+        'logo-modern': ['Outfit', 'sans-serif'],
+        'logo-elegant': ['Raleway', 'sans-serif'],
+        'logo-tech': ['Inter', 'sans-serif'],
+        'logo-poppins': ['Poppins', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

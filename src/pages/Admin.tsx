@@ -634,11 +634,11 @@ const Admin = () => {
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Home</span>
             </Link>
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">UC</span>
-              </div>
-              <span className="text-xl font-bold text-text-primary">UniCreds Admin</span>
+            <div className="flex items-center">
+              <span className="text-2xl font-normal text-transparent bg-gradient-primary bg-clip-text tracking-wide font-logo">
+                Fundineed
+              </span>
+              <span className="text-xl font-bold text-text-primary ml-2">Admin</span>
             </div>
           </div>
           

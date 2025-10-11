@@ -1,16 +1,16 @@
-// Real data tracking utility for UniCreds
-export class UniCredsTracker {
-  private static instance: UniCredsTracker;
+// Real data tracking utility for Fundineed
+export class FundineedTracker {
+  private static instance: FundineedTracker;
 
   private constructor() {
     this.initializeTracking();
   }
 
-  public static getInstance(): UniCredsTracker {
-    if (!UniCredsTracker.instance) {
-      UniCredsTracker.instance = new UniCredsTracker();
+  public static getInstance(): FundineedTracker {
+    if (!FundineedTracker.instance) {
+      FundineedTracker.instance = new FundineedTracker();
     }
-    return UniCredsTracker.instance;
+    return FundineedTracker.instance;
   }
 
   private initializeTracking() {
@@ -25,8 +25,8 @@ export class UniCredsTracker {
   }
 
   private trackPageView() {
-    const currentPageViews = parseInt(localStorage.getItem('unicreds_page_views') || '0');
-    localStorage.setItem('unicreds_page_views', (currentPageViews + 1).toString());
+    const currentPageViews = parseInt(localStorage.getItem('fundineed_page_views') || '0');
+    localStorage.setItem('fundineed_page_views', (currentPageViews + 1).toString());
 
     // Track page-specific views
     const currentPath = window.location.pathname;
@@ -67,7 +67,7 @@ export class UniCredsTracker {
   }
 
   private trackConversion(action: string) {
-    const conversions = JSON.parse(localStorage.getItem('unicreds_conversions') || '[]');
+    const conversions = JSON.parse(localStorage.getItem('fundineed_conversions') || '[]');
     conversions.push({
       action,
       timestamp: new Date().toISOString(),
@@ -79,11 +79,11 @@ export class UniCredsTracker {
       conversions.splice(0, conversions.length - 100);
     }
 
-    localStorage.setItem('unicreds_conversions', JSON.stringify(conversions));
+    localStorage.setItem('fundineed_conversions', JSON.stringify(conversions));
   }
 
   private trackLoanApplication(form: HTMLFormElement) {
-    const applications = JSON.parse(localStorage.getItem('unicreds_applications') || '[]');
+    const applications = JSON.parse(localStorage.getItem('fundineed_applications') || '[]');
 
     // Extract form data (basic implementation)
     const formData = new FormData(form);
@@ -98,7 +98,7 @@ export class UniCredsTracker {
     };
 
     applications.push(application);
-    localStorage.setItem('unicreds_applications', JSON.stringify(applications));
+    localStorage.setItem('fundineed_applications', JSON.stringify(applications));
 
     this.incrementStat('loan_applications');
   }
@@ -138,13 +138,13 @@ export class UniCredsTracker {
   }
 
   private incrementStat(key: string) {
-    const currentValue = parseInt(localStorage.getItem(`unicreds_${key}`) || '0');
-    localStorage.setItem(`unicreds_${key}`, (currentValue + 1).toString());
+    const currentValue = parseInt(localStorage.getItem(`fundineed_${key}`) || '0');
+    localStorage.setItem(`fundineed_${key}`, (currentValue + 1).toString());
   }
 
   // Public methods for external use
   public recordUserAction(action: string, details?: any) {
-    const actions = JSON.parse(localStorage.getItem('unicreds_user_actions') || '[]');
+    const actions = JSON.parse(localStorage.getItem('fundineed_user_actions') || '[]');
     actions.push({
       action,
       details,
@@ -157,20 +157,20 @@ export class UniCredsTracker {
       actions.splice(0, actions.length - 500);
     }
 
-    localStorage.setItem('unicreds_user_actions', JSON.stringify(actions));
+    localStorage.setItem('fundineed_user_actions', JSON.stringify(actions));
   }
 
   public getRealStats() {
     return {
-      totalApplications: parseInt(localStorage.getItem('unicreds_loan_applications') || '0'),
-      pageViews: parseInt(localStorage.getItem('unicreds_page_views') || '0'),
-      buttonClicks: parseInt(localStorage.getItem('unicreds_button_clicks') || '0'),
-      formSubmissions: parseInt(localStorage.getItem('unicreds_form_submissions') || '0'),
-      conversions: JSON.parse(localStorage.getItem('unicreds_conversions') || '[]').length,
-      applications: JSON.parse(localStorage.getItem('unicreds_applications') || '[]')
+      totalApplications: parseInt(localStorage.getItem('fundineed_loan_applications') || '0'),
+      pageViews: parseInt(localStorage.getItem('fundineed_page_views') || '0'),
+      buttonClicks: parseInt(localStorage.getItem('fundineed_button_clicks') || '0'),
+      formSubmissions: parseInt(localStorage.getItem('fundineed_form_submissions') || '0'),
+      conversions: JSON.parse(localStorage.getItem('fundineed_conversions') || '[]').length,
+      applications: JSON.parse(localStorage.getItem('fundineed_applications') || '[]')
     };
   }
 }
 
 // Initialize tracking when module is imported
-export const tracker = UniCredsTracker.getInstance();
+export const tracker = FundineedTracker.getInstance();

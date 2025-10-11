@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import EducationLoan from "./pages/EducationLoan";
@@ -37,30 +38,30 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/education-loan" element={<EducationLoan />} />
-          <Route path="/student-loan" element={<StudentLoan />} />
-          <Route path="/study-abroad" element={<StudyAbroad />} />
-          <Route path="/accommodation" element={<Accommodation />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/apply" element={<Apply />} />
-          <Route path="/eligibility" element={<Eligibility />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/personal-loan" element={<PersonalLoan />} />
-          <Route path="/business-loan" element={<BusinessLoan />} />
-          <Route path="/help-center" element={<HelpCenter />} />
-          <Route path="/live-chat" element={<LiveChat />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/" element={<Layout><Index /></Layout>} />
+          <Route path="/education-loan" element={<Layout><EducationLoan /></Layout>} />
+          <Route path="/student-loan" element={<Layout><StudentLoan /></Layout>} />
+          <Route path="/study-abroad" element={<Layout><StudyAbroad /></Layout>} />
+          <Route path="/accommodation" element={<Layout><Accommodation /></Layout>} />
+          <Route path="/contact" element={<Layout><Contact /></Layout>} />
+          <Route path="/apply" element={<Layout><Apply /></Layout>} />
+          <Route path="/eligibility" element={<Layout><Eligibility /></Layout>} />
+          <Route path="/faq" element={<Layout><FAQ /></Layout>} />
+          <Route path="/personal-loan" element={<Layout><PersonalLoan /></Layout>} />
+          <Route path="/business-loan" element={<Layout><BusinessLoan /></Layout>} />
+          <Route path="/help-center" element={<Layout><HelpCenter /></Layout>} />
+          <Route path="/live-chat" element={<Layout><LiveChat /></Layout>} />
+          <Route path="/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
+          <Route path="/terms-of-service" element={<Layout><TermsOfService /></Layout>} />
+          <Route path="/cookie-policy" element={<Layout><CookiePolicy /></Layout>} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={
             <ProtectedRoute>
-              <Admin />
+              <Layout><Admin /></Layout>
             </ProtectedRoute>
           } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

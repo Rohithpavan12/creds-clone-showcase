@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ArrowLeft, Globe, Plane, DollarSign, MapPin } from "lucide-react";
+import { Globe, Calculator, FileText, Clock, Shield, TrendingUp, Plane, DollarSign, MapPin, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const StudyAbroad = () => {
@@ -65,22 +65,7 @@ const StudyAbroad = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="bg-white border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Back to Home</span>
-          </Link>
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">UC</span>
-            </div>
-            <span className="text-xl font-bold text-text-primary">UniCreds</span>
-          </div>
-        </div>
-      </header>
+    <div>
 
       {/* Hero Section */}
       <section className="bg-gradient-hero py-16">

@@ -26,7 +26,7 @@ export interface SiteSettingsState {
 }
 
 const defaults: Omit<SiteSettingsState, "update" | "updateStep" | "addStep" | "removeStep" | "updateNav" | "addNav" | "removeNav" | "resetDefaults"> = {
-  brandName: "UniCreds",
+  brandName: "Fundineed",
   heroTagline: "FUNDING DREAMS. FUELLING CAREERS.",
   heroTitle: "Get Education Loan in",
   heroHighlight: "48 hours*",
@@ -69,6 +69,6 @@ export const useSiteSettings = create<SiteSettingsState>()(
       removeNav: (index) => set(({ nav }) => ({ nav: nav.filter((_, i) => i !== index) } as any)),
       resetDefaults: () => set({ ...defaults }),
     }),
-    { name: "unicreds-site-settings" }
+    { name: "fundineed-site-settings" }
   )
 );

@@ -8,112 +8,107 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 215 25% 27%;
+    /* Beautiful purple gradient color scheme */
+    --background: 300 100% 98%;
+    --foreground: 280 20% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 25% 27%;
+    --card: 300 60% 96%;
+    --card-foreground: 280 20% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 27%;
+    --popover: 300 60% 96%;
+    --popover-foreground: 280 20% 15%;
 
-    /* Professional teal/green primary inspired by unicreds */
-    --primary: 168 76% 42%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 168 76% 38%;
+    /* Purple primary colors based on the gradient palette */
+    --primary: 280 85% 60%; /* Rich purple from the palette */
+    --primary-foreground: 300 100% 98%;
+    --primary-hover: 280 90% 55%;
 
-    /* Soft background variations */
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 215 25% 27%;
+    /* Soft purple background variations */
+    --secondary: 290 40% 90%;
+    --secondary-foreground: 280 25% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 295 30% 94%;
+    --muted-foreground: 280 15% 50%;
 
-    --accent: 168 76% 42%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 285 70% 65%; /* Medium purple from palette */
+    --accent-foreground: 300 100% 98%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 300 100% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 168 76% 42%;
+    --border: 295 25% 88%;
+    --input: 295 30% 92%;
+    --ring: 280 85% 60%;
 
-    /* Custom design tokens */
-    --hero-bg: 210 40% 98%;
-    --text-primary: 215 25% 27%;
-    --text-secondary: 215 15% 47%;
-    --success: 142 71% 45%;
-    --gradient-hero: linear-gradient(135deg, hsl(var(--hero-bg)), hsl(210 40% 96%));
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(168 76% 48%));
-    --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    /* Custom design tokens with purple theme */
+    --hero-bg: 300 80% 97%;
+    --text-primary: 280 20% 15%;
+    --text-secondary: 280 15% 45%;
+    --success: 285 60% 55%; /* Purple-tinted success */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--hero-bg)), hsl(295 50% 94%));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(285 80% 65%));
+    --shadow-card: 0 4px 6px -1px rgb(139 69 255 / 0.08), 0 2px 4px -2px rgb(139 69 255 / 0.06);
+    --shadow-hover: 0 10px 15px -3px rgb(139 69 255 / 0.12), 0 4px 6px -4px rgb(139 69 255 / 0.08);
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 300 60% 96%;
+    --sidebar-foreground: 280 25% 25%;
+    --sidebar-primary: 280 85% 60%;
+    --sidebar-primary-foreground: 300 100% 98%;
+    --sidebar-accent: 295 30% 94%;
+    --sidebar-accent-foreground: 280 25% 25%;
+    --sidebar-border: 295 25% 88%;
+    --sidebar-ring: 280 85% 60%;
   }
 
   .dark {
-    --background: 215 28% 17%;
-    --foreground: 210 40% 98%;
+    /* Dark purple theme */
+    --background: 280 30% 8%;
+    --foreground: 300 50% 95%;
 
-    --card: 215 28% 17%;
-    --card-foreground: 210 40% 98%;
+    --card: 280 35% 12%;
+    --card-foreground: 300 50% 95%;
 
-    --popover: 215 28% 17%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 280 35% 12%;
+    --popover-foreground: 300 50% 95%;
 
-    --primary: 168 76% 42%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 168 76% 38%;
+    --primary: 285 80% 75%; /* Lighter purple for dark mode */
+    --primary-foreground: 280 30% 8%;
+    --primary-hover: 285 85% 80%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 280 25% 15%;
+    --secondary-foreground: 300 40% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 280 20% 18%;
+    --muted-foreground: 285 20% 70%;
 
-    --accent: 168 76% 42%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 285 80% 75%;
+    --accent-foreground: 280 30% 8%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 300 50% 95%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 168 76% 42%;
+    --border: 280 25% 22%;
+    --input: 280 25% 20%;
+    --ring: 285 80% 75%;
 
-    --hero-bg: 215 28% 17%;
-    --text-primary: 210 40% 98%;
-    --text-secondary: 215 20% 65%;
-    --success: 142 71% 45%;
-    --gradient-hero: linear-gradient(135deg, hsl(var(--hero-bg)), hsl(217 32% 20%));
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(168 76% 48%));
-    --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-    --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --hero-bg: 280 30% 8%;
+    --text-primary: 300 50% 95%;
+    --text-secondary: 285 20% 75%;
+    --success: 285 60% 65%;
+    --gradient-hero: linear-gradient(135deg, hsl(var(--hero-bg)), hsl(280 25% 15%));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(285 85% 80%));
+    --shadow-card: 0 4px 6px -1px rgb(139 69 255 / 0.3), 0 2px 4px -2px rgb(139 69 255 / 0.2);
+    --shadow-hover: 0 10px 15px -3px rgb(139 69 255 / 0.3), 0 4px 6px -4px rgb(139 69 255 / 0.2);
+    --sidebar-background: 280 30% 6%;
+    --sidebar-foreground: 300 40% 90%;
+    --sidebar-primary: 285 80% 75%;
+    --sidebar-primary-foreground: 280 30% 8%;
+    --sidebar-accent: 280 20% 15%;
+    --sidebar-accent-foreground: 300 40% 90%;
+    --sidebar-border: 280 25% 22%;
+    --sidebar-ring: 285 80% 75%;
   }
 }
 

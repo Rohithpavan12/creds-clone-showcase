@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Upload, Check, FileText, User, GraduationCap, DollarSign } from "lucide-react";
+import { Upload, Check, FileText, User, GraduationCap, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -338,7 +338,7 @@ const Apply = () => {
                       I agree to the <Link to="/terms" className="text-primary hover:underline">Terms and Conditions</Link> and <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
                     </Label>
                     <p className="text-xs text-text-secondary">
-                      By submitting this application, you consent to UniCreds processing your personal data for loan evaluation purposes.
+                      By submitting this application, you consent to Fundineed processing your personal data for loan evaluation purposes.
                     </p>
                   </div>
                 </div>
@@ -353,22 +353,7 @@ const Apply = () => {
   };
 
   return (
-    <div className="min-h-screen bg-hero-bg">
-      {/* Header */}
-      <header className="bg-white border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Back to Home</span>
-          </Link>
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">UC</span>
-            </div>
-            <span className="text-xl font-bold text-text-primary">UniCreds</span>
-          </div>
-        </div>
-      </header>
+    <div className="bg-hero-bg">
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">

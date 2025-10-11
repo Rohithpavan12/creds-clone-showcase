@@ -247,10 +247,10 @@ const AdminLogin = () => {
             <p className="text-xs text-gray-600 text-center mb-2">Demo Credentials:</p>
             <div className="space-y-1">
               <p className="text-xs text-gray-700 text-center">
-                <span className="font-mono">admin@unicreds.com</span> / <span className="font-mono">UniCreds@2024!</span>
+                <span className="font-mono">admin@fundineed.com</span> / <span className="font-mono">Fundineed@2024!</span>
               </p>
               <p className="text-xs text-gray-700 text-center">
-                <span className="font-mono">manager@unicreds.com</span> / <span className="font-mono">Manager@2024!</span>
+                <span className="font-mono">manager@fundineed.com</span> / <span className="font-mono">Manager@2024!</span>
               </p>
             </div>
           </div>
